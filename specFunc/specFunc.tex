@@ -1,0 +1,198 @@
+\documentclass[hidelinks,10pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\selectlanguage{polish}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{pdfpages}
+\usepackage{hyperref}
+\newcommand\tab[1][0.5cm]{\hspace*{#1}}
+
+
+\begin{document}
+\title{Algorytmy i Struktury Danych \\ projekt grupowy \\ specyfikacja funkcjonalna programu \\``Program''}
+\author{Bazyli Reps}
+\maketitle
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Wstęp}
+\tab Celem projektu jest napisanie aplikacji umożliwiającej dzielenie obszaru na obszary na podstawie dostarczonych przez użytkownika współrzędnych miejsc symbolizujących instytucje finansowe, nazywane w dalszej części dokumentu \textbf{punktami kluczowymi}.
+Aplikacja ta w dalszej części dokumentu będzie nazywana programem.
+
+Poza punktami kluczowymi użytkownik dostarcza także informację dotyczącą \textbf{konturów}, czyli zbioru \textbf{współrzędnych} wyznaczających granicę symulowanego obszaru oraz \textbf{obiektów}, czyli określonych przez użytkownika bytów posiadających określone właściwości i znajdujących się na danym obszarze. Dane dostarczane są z pliku tekstowego zwanego dalej \textbf{plikiem wejściowym} lub z programu.
+Dokładne informacje dotyczące podmiotów wypisanych pogrubioną czcionką znajdują się w sekcji \hyperref[sec:daneWej]{\textit{4 Format danych}}.
+
+\section{Wymagania funkcjonalne}
+\tab Program ma zawierać nastepujące funkcjonalności:
+\begin{enumerate}
+
+
+\item rysowanie i wczytywanie danych takich bytów jak:
+\begin{enumerate}
+\item \textbf{punkty kluczowe}
+\item \textbf{kontury}
+\item \textbf{obiekty}
+\end{enumerate}
+przy czym \textbf{punkty kluczowe} oraz \textbf{kontury} mają ściśle zdefiniowaną w tym dokumencie listę atrybutów, natomiast \textbf{obiekty} mają atrybuty definiowane przez użytkownika,
+\item wyznaczanie i rysowanie granic na podstawie \textbf{konturów},
+\item wyznaczenie i narysowanie optymalnych granic obszarów dookoła \textbf{punktów kluczowych}, nazywanych dalej \textbf{obszarami} przy czym:
+\begin{enumerate}
+\item w każdym z takich \textbf{obszarów} znajduje się wyłącznie jeden punkt kluczowy
+\item optymalne granice mają wyznaczać takie \textbf{obszary}, w których każdy punkt należący do \textbf{obszaru} znajduje się bliżej \textbf{punktu kluczowego} tego \textbf{obszaru} niż jakiegokolwiek innego \textbf{punktu kluczowego}
+\end{enumerate}
+\item wyświetlanie posegregowanej według typów listy \textbf{obiektów} należących do każdego \textbf{obszaru}
+\item tworzenie oraz wyświetlanie na żądanie użytkownika statystyk dotyczących danego obszaru, gdzie przez statystyki rozumie się:
+\begin{enumerate}
+\item podawanie liczby mieszkańców na podstawie informacji o \textbf{obiektach} zawierających atrybut typu \textit{L\_MIESZKANCOW} znajdujących się na \textbf{obszarze} 
+\item wyznaczenie typów \textbf{obiektów} znajdujących się na \textbf{obszarze} oraz podanie ilości instancji \textbf{obiektów} dla każdego z typów
+\end{enumerate}
+\item podczas działania programu dodawanie i usuwanie elementów \textbf{konturów}
+\item podczas działania programu dodawanie i usuwanie \textbf{punktów kluczowych} 
+\item podkładanie pod rysowane \textbf{kontury} grafiki dostarczonej przez użytkownika
+
+\end{enumerate}
+
+
+
+\section{Wymagania niefunkcjonalne}
+\tab Program ma pracować jako aplikacja internetowa, co oznacza, że będzie działał on na serwerze dostawcy usług a klient będzie komunikował się z nim przez przeglądarkę internetową za pomocą sieci WWW.
+\subsection{obsługiwane przeglądarki}
+Program ma być obsługiwany przez aktualne w czasie utworzenia dokumentu  przeglądarki internetowe takie jak:
+\begin{itemize}
+\item Mozilla Firefox
+\item Google Chrome
+\item Safari
+\item Microsoft Edge
+\end{itemize}  
+\subsection{wykorzystywane technologie}
+Program ma być napisany z wykorzystaniem następujących technologii [lista technologii]
+
+
+
+
+\section{Format danych}
+\label{sec:daneWej}
+
+\subsection{pliki}
+Użytkownik opcjonalnie dostarcza programowi następujące pliki:
+\begin{enumerate}
+\item Tekstowy plik o rozszerzeniu \textit{.txt} z enkodowaniem \textit{utf-8} zawierający informacje dotyczące \textbf{konturów}, \textbf{punktów kluczowych} oraz \textbf{obiektów} nazywany \textbf{plikiem wejściowym}
+\item Grafikę w jednym z następujących formatów: 
+\begin{enumerate}
+\item .png
+\item .jpg
+\item .jpeg
+\item .bmp
+\item .gif
+\end{enumerate}
+która może służyć jako tło dla rysowanego układu nazywaną dalej   \textbf{grafiką}.
+\end{enumerate}
+
+\subsection{przykład poprawnie sformatowanego pliku wejściowego}
+\# Kontury terenu (wymienione w kolejności łączenia): Lp. x y
+\\1. 0 0
+\\2. 0 20
+\\3. 20 30.5
+\\4. 40 20
+\\5. 40 0
+\\
+\\
+\# Punkty kluczowe: Lp. x y Nazwa
+\\1. 1 1 KOK Krawczyka
+\\2. 1 19 KOK Kaczmarskiego
+\\3. 30 10 KOK Łazarewicza
+\\
+\\
+\# Definicje obiektów: Lp. Typ\_obiektu (Nazwa\_zmiennej Typ\_zmiennej)
+\\1. SZKOŁA Nazwa String X double Y double
+\\2. DOM X double Y double L\_MIESZKAŃCÓW int
+\\3. NIEDŹWIEDŹ X double Y double
+\\
+\\
+\# Obiekty: Typ\_obiektu (zgodnie z definicją)
+\\1. SZKOŁA "Szkoła robienia dużych pieniędzy" 4 1
+\\2. DOM 4 3 100
+\\3. DOM 4 17 120
+\\4. DOM 4 18 80
+\\5. NIEDŹWIEDŹ 20 20
+\\6. NIEDŹWIEDŹ 40 1
+\\7. NIEDŹWIEDŹ 39 1
+\\8. NIEDŹWIEDŹ 39 2
+\\
+\subsection{opis typów}
+
+
+\subsubsection{kontury / współrzędna}
+\textbf{Kontury} stanowią listę obiektów typu \textbf{współrzędna}.
+Kolejność w liście odwzorowuje kolejność dodawania \textbf{współrzędnych} do listy w ten sposób, że pierwsza dodana do \textbf{konturów} \textbf{współrzędna} będzie pierwszą \textbf{współrzędną} na liście. Każda z \textbf{współrzędnych} zawiera dokładnie dwa atrybuty:
+\begin{enumerate}
+\item \textit{x} - nieujemna liczba całkowita oznaczająca wartość odciętych w dwuwymiarowym układzie współrzędnych
+\item \textit{y} - nieujemna liczba całkowita oznaczająca wartość rzędnych w dwuwymiarowym układzie współrzędnych
+\end{enumerate}
+
+\subsubsection{punkt kluczowy}
+\textbf{Punkt kluczowy} symbolizuje instytucję finansową. 
+Zawiera on dokładnie trzy atrybuty:
+\begin{enumerate}
+\item \textit{x} - nieujemna liczba całkowita oznaczająca wartość odciętych w dwuwymiarowym układzie współrzędnych
+\item \textit{y} - nieujemna liczba całkowita oznaczająca wartość rzędnych w dwuwymiarowym układzie współrzędnych
+\item \textit{Nazwa} - nazwa instytucji. Całość nazwy razem ze spacjami lub innymi białymi znakami nie może przekraczać 100 znaków. 
+\end{enumerate}
+
+\subsubsection{obiekt}
+\textbf{Obiekt} jest definiowany przez użytkownika w \textbf{pliku wejściowym} lub bezpośrednio w programie. 
+\textbf{Obiekt} może zawierać od dwóch do sześciu atrybutów pośród których koniecznie muszą znaleźć się dwa atrybuty:
+\begin{enumerate}
+\item \textit{x} - nieujemna liczba całkowita oznaczająca wartość odciętych w dwuwymiarowym układzie współrzędnych
+\item \textit{y} - nieujemna liczba całkowita oznaczająca wartość rzędnych w dwuwymiarowym układzie współrzędnych
+\end{enumerate}
+Atrybuty w \textbf{obiekcie} mogą być dodawane w dowolnej kolejności.
+
+\subsection{opis formatowania}
+
+\textbf{Plik wejściowy} musi składać się z dokładnie czterech sekcji, z których każda z nich musi zaczynać się linią w której pierwszym znakiem jest znak '\#' zwaną dalej \textbf{linią rozpoczynającą}.
+W dalszej części \textbf{linii rozpoczynającej} użytkownik może wpisać dowolne znaki.
+Każda z linii nie może zawierać więcej niż 200 znaków.
+Elementy każdej sekcji muszą znajdować się w kolejnych liniach. 
+Elementy poza \textbf{linią rozpoczynającą} w każdej sekcji muszą być numerowane kolejnymi liczbami naturalnymi (rozpoczynając od liczby '1') po których bezpośrednio występuje znak kropki '.' i co najmniej jedna spacja.
+ 
+
+\subsubsection{kontury}
+
+
+
+
+
+\section{Sposób uruchomienia programu}
+
+
+
+
+
+
+
+
+\section{Sytuacje wyjątkowe}
+
+\subsection{Błędy pliku}
+
+
+\subsection{Błędy formatowania pliku}
+
+
+
+
+\section{Testy akceptacyjne}
+
+
+
+
+
+\end{document}
