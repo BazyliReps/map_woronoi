@@ -99,7 +99,7 @@ która może służyć jako tło dla rysowanego układu nazywaną dalej   \textb
 \# Kontury terenu (wymienione w kolejności łączenia): Lp. x y
 \\1. 0 0
 \\2. 0 20
-\\3. 20 30.5
+\\3. 20 30
 \\4. 40 20
 \\5. 40 0
 \\
@@ -111,7 +111,7 @@ która może służyć jako tło dla rysowanego układu nazywaną dalej   \textb
 \\
 \\
 \# Definicje obiektów: Lp. Typ\_obiektu (Nazwa\_zmiennej Typ\_zmiennej)
-\\1. SZKOŁA Nazwa String X double Y double
+\\1. SZKOŁA Nazwa string X double Y double
 \\2. DOM X double Y double L\_MIESZKAŃCÓW int
 \\3. NIEDŹWIEDŹ X double Y double
 \\
@@ -156,38 +156,142 @@ Zawiera on dokładnie trzy atrybuty:
 Atrybuty w \textbf{obiekcie} mogą być dodawane w dowolnej kolejności.
 
 \subsection{opis formatowania}
+\begin{enumerate}
 
-\textbf{Plik wejściowy} musi składać się z dokładnie czterech sekcji, z których każda z nich musi zaczynać się linią w której pierwszym znakiem jest znak '\#' zwaną dalej \textbf{linią rozpoczynającą}.
-W dalszej części \textbf{linii rozpoczynającej} użytkownik może wpisać dowolne znaki.
-Każda z linii nie może zawierać więcej niż 200 znaków.
-Elementy każdej sekcji muszą znajdować się w kolejnych liniach. 
-Elementy poza \textbf{linią rozpoczynającą} w każdej sekcji muszą być numerowane kolejnymi liczbami naturalnymi (rozpoczynając od liczby '1') po których bezpośrednio występuje znak kropki '.' i co najmniej jedna spacja.
+
+\item \textbf{Plik wejściowy} musi składać się z dokładnie czterech sekcji, z których każda z nich musi zaczynać się linią w której pierwszym znakiem jest znak '\#' zwaną dalej \textbf{linią rozpoczynającą}.
+\item W dalszej części \textbf{linii rozpoczynającej} użytkownik może wpisać dowolne znaki. 
+\item Linie następujace po \textbf{linii rozpoczynającej} w każdej sekcji nazywane są \textbf{liniami deklaracji}.
+\item Każda \textbf{linia deklaracji} ma zawierać deklarację pojedynczego bytu i każdy byt musi być zadeklarowany w dokładnie jednej \textbf{linii deklaracji}.
+\item Każda z linii nie może zawierać więcej niż 200 znaków.
+\item \textbf{Linie deklaracji} w każdej sekcji muszą być numerowane kolejnymi liczbami naturalnymi (rozpoczynając od liczby '1') po których bezpośrednio występuje znak kropki '.' i co najmniej jedna spacja, przy czym w każdej sekcji numerowanie następuje od '1'. Figura taka (liczba-kropka-spacja) nazywana jest \textbf{numerem linii}.
+\item Kolejne wyrazy w \textbf{linii deklaracji} muszą być oddzielone co najmniej jedną spacją. Wyrazy nie będące \textbf{numerem linii} są nazywane \textbf{elementami}.
+\end{enumerate}
  
 
 \subsubsection{kontury}
+Sekcja ta może zawierać co najwyżej 1000 \textbf{linii deklaracji}.
+Każda \textbf{linia deklaracji} tej sekcji musi zawierać dokładnie dwa \textbf{elementy} oznaczające atrybuty \textit{X} i \textit{Y} opisane w podpunkcie 4.3.1.
+\\ Kolejność: [\textbf{numer linii}] [X] [Y]
 
+\subsubsection{punkty kluczowe}
+Sekcja ta może zawierać co najwyżej 10000 \textbf{linii deklaracji}.
+Każda \textbf{linia deklaracji} tej sekcji musi zawierać dokładnie trzy \textbf{elementy} oznaczające atrybuty \textit{X}, \textit{Y}, \textit{Nazwa} opisane w podpunkcie 4.3.2. W tej sekcji \textbf{element} \textit{Nazwa} może składać się z wielu wyrazów. Tworzony jest on przez wszystkie wyrazy napotkane w \textbf{linii deklaracji} po napotkaniu w niej \textbf{elementów} \textit{X} i \textit{Y}.
+\\
+\\ Kolejność: [\textbf{numer linii}] [X] [Y] [Nazwa$_{1}$] ... [Nazwa$_{n}$]
 
+\subsubsection{definicje obiektów}
+Sekcja ta może zawierać co najwyżej 1000 \textbf{linii deklaracji}.
+Każda \textbf{linia deklaracji} musi zawierać co najmniej 5 \textbf{elementów}. 
+Pierwszy \textbf{element} musi być napisem oznaczającym typ \textbf{obiektu} i musi być pierwszym \textbf{elementem} w \textbf{linii deklaracji}.
+Pozostałe cztery wymagane \textbf{elementy} są to dwie pary \textbf{elementów} (X, double) i (Y, double) oznaczających atrybuty \textit{X} i \textit{Y} \textbf{obiektów} opisane w podpunkcie 4.3.3. Pary mogą znaleźć się na dowolnej pozycji w \textbf{linii deklaracji} poza pozycją pierwszą. \textbf{Elementy} w parze są nierozłączne.
+Łącznie w jednej \textbf{linii deklaracji} może znajdować się sześć par (nazwa atrybutu, typ atrybutu).
+Typy muszą być pisane małymi literami.
+\\\\Kolejność: [\textbf{numer linii}] [Atrybut$_{1}$] [Typ atrybutu$_{1}$] ... [Atrybut$_{n}$] [Typ atrybutu$_{n}$]
+\section{Obsługa programu}
 
+\subsection{Schemat interfejsu}
+\includegraphics[width = \textwidth]{gui.pdf}
 
-
-\section{Sposób uruchomienia programu}
-
-
-
-
+\subsection{Opis działania programu}
+\subsubsection{uruchomienie programu}
+Użytkownik uruchamia program poprzez uruchomienie przeglądarki internetowej i wejście na adres [adres aplikacji]. 
+\subsubsection{wczytywanie pliku wejściowego lub grafiki}
+Użytkownik wczytuje plik wejściowy lub grafikę poprzez kliknięcie przycisku \textbf{Wczytaj plik z danymi} lub \textbf{Wczytaj grafikę} i wybranie w wyświetlonym okienku wyboru pliku pożądanego pliku.
+\subsubsection{przeglądanie mapy}
+Użytkownik przegląda mapę, jeżeli nie mieści się ona w całości w okienku, poprzez używanie strzałek na klawiaturze. 
+\subsubsection{wyświetlanie statystyk lub listy obiektów należących do danego obszaru}
+Użytkownik wyświetla statystyki danego obszaru poprzez kliknięcie myszą na mapie na interesującym go obszarze i kliknięcie przycisku \textbf{Zobacz statystyki} lub przycisku \textbf{Zobacz obiekty}.
+\subsubsection{dodawanie punktu do konturu}
+Użytkownik dodaje punkt do konturów poprzez kliknięcie przycisku \textbf{Dodaj punkt do konturu}.
+Po wykonaniu tej akcji uaktywnią się dwa pola edycyjne poniżej przycisku.
+W pierwszym z nich należy podać współrzędną \textit{X}, a w drugim współrzędną \textit{Y} a następnie jeszcze raz nacisnąć przycisk \textbf{Dodaj punkt do konturu}.
+\subsubsection{dodawanie punktu kluczowego}
+Użytkownik dodaje punkt kluczowy poprzez kliknięcie przycisku \textbf{Dodaj punkt kluczowy}.
+Po wykonaniu tej akcji uaktywnią się pola edycyjne poniżej przycisku.
+W pierwszym z nich należy podać współrzędną \textit{X}, w drugim współrzędną \textit{Y}, w trzecim podać nazwę punktu kluczowego a następnie jeszcze raz nacisnąć przycisk \textbf{Dodaj punkt kluczowy}.
+\subsubsection{chowanie listy punktów kluczowych lub statystyk}
+Użytkownik może schować listę punktów kluczowych lub statystyki poprzez kliknięcie przycisku z czarnym trójkątem znajdującego się na wysokości wybranego elementu.
+Aby przywrócić ich widok należy jeszcze raz nacisnąć na dany przycisk.
 
 
 
 
 \section{Sytuacje wyjątkowe}
+\tab W przypadku wystąpienia sytuacji wyjątkowej program wypisze w przeglądarce odpowiedni komunikat oraz w razie konieczności zaznaczy miejsce w którym popełniono błąd kolorem czerwonym.
 
 \subsection{Błędy pliku}
+\begin{enumerate}
 
+
+\item{\textbf{Nie można otworzyć wybranego pliku}}
+\\komunikat: Nie mogę otworzyć wybranego pliku [nazwa pliku]!  
+\item \textbf{Nieodpowiedni format pliku}
+\begin{enumerate}
+\item \textbf{plik wejściowy}
+\\ komunikat: Plik wejściowy jest w nieodpowiednim formacie! Plik wejściowy musi być plikiem tekstowym z enkodowaniem UTF-8! 
+\item \textbf{grafika}
+\\ komunikat: Grafika jest w nieodpowiednim formacie! Grafika powinna być w jednym z formatów: JPG, JPEG, PNG, GIF, BMP! 
+\end{enumerate}
+\end{enumerate}
 
 \subsection{Błędy formatowania pliku}
+\tab W przypadku wystąpienia jakiejkolwiek sytuacji wyjątkowej na wszelki wypadek \textbf{plik wejściowy} nie zostanie wczytany.
+\begin{enumerate} 
 
+\item \textbf{Błędny typ danych w danym miejscu:}
+\\
+\\komunikat: W pliku [\textit{nazwaPliku}] w linii [\textit{nrLinii}] znaleziono ciąg znaków [\textit{ciągZnaków}]. W tym miejscu powinna się znajdować [\textit{pożądana wartość, np. liczba całkowita określająca wartość atrybutu X}]!
 
+\item \textbf{Nieodpowiedni format liczby oznaczającej współrzędne lub liczbę mieszkańców}
+\\\\komunikat: W pliku [nazwa pliku] w linii [numer linii] znaleziono liczbę [znaleziona liczba]. W tym miejscu musi znajdować się nieujemna liczba całkowita!
 
+\item \textbf{Nierozpoznany typ zmiennej}
+\\\\komunikat: W pliku [nazwa pliku] w linii [numer linii] w sekcji DEFINICJA OBIEKTÓW natrafiono na nierozpoznany tym zmiennej [dana zmienna]. Dopuszczalne typy zmiennych to: string, int, double.
+
+\item \textbf{Błędne numerowanie linii deklaracji}
+\\\\komunikat: W pliku [nazwa pliku] w linii [numer linii] znaleziono nieodpowiednio numerowaną linię deklaracji! Linie deklaracji muszą być kolejnymi liczbami naturalnymi. Linie deklaracji każdej sekcji muszą rozpoczynać się od jedynki.
+
+\item \textbf{Więcej elementów w linii niż jest dozwolone.}
+\\
+\\komunikat: W pliku [\textit{nazwa pliku}] w linii [\textit{nrLinii}] znajduje się [\textit{liczba elementów}]. Dozwolona liczba elementów w danej linii to [\textit{liczba elementów}].
+
+\item \textbf{Więcej znaków w linii niż dozwolone}
+\\\\komunikat: W linii [numer linii] znajduje się [liczba znaków]. Maksymalna dopuszczalna liczba znaków w linii wynosi [maksymalna ilość znaków]!
+
+\item \textbf{Więcej linii w sekcji niż jest dozwolone}
+\\\\komunikat: W pliku [nazwa pliku] w sekcji [typ sekcji, np. kontury] znaleziono [liczba linii] linii. Maksymalna liczba linii w tej sekcji wynosi [maksymalna liczba linii].
+
+\item \textbf{Brak dostatecznej ilości informacji w linii}
+\\\\komunikat: W pliku [nazwa pliku] w linii [numer linii] znaleziono za mało elementów. Odpowiednia liczba elementów to [odpowiednia liczba]. Znaleziono: [ilosć znalezionych].
+
+\item \textbf{Powtórzona deklaracja obiektu.}
+\\
+\\komunikat: W pliku [\textit{nazwa pliku}] w linii [\textit{nrLinii}] natrafiono na ponowną deklarację obiektu typu[\textit{typ obiektu i linia pierwszej deklaracji}].
+
+\item \textbf{Dwa byty znajdują się na tych samych współrzędnych}
+\\
+\\komunikat: W pliku [nazwa pliku] naleziono dwa byty o tych samych współrzędnych pod liniami [numer linii1] i [numer linii2]! Każdy byt musi znajdować się na niepowtarzalnych współrzędnych!
+
+\item \textbf{Nieodpowiednia ilość linii rozpoczynających}
+\\\\komunikat: Znaleziono [liczba linii] linii rozpoczynających (zaczynających się od \#). Każda sekcja musi zaczynać się od linii rozpoczynającej, więc muszą wystąpić co najmniej 4 takie linie!
+
+\end{enumerate}
+
+\subsection{Błędy występujące po wczytaniu pliku}
+
+\begin{enumerate}
+
+\item \textbf{Punkt kluczowy lub obiekt znajduje się poza konturami}
+\\\\komunikat: [Typ bytu] znajduje się poza podanymi konturami. Wszystkie punkty kluczowe oraz obiekty muszą znajdować się wewnątrz obszaru wyznaczonego przez kontury.
+
+\item \textbf{Podane nieprawidłowe dane podczas dodawania nowego punktu kluczowego bądź elementu konturów}
+\\\\komunikat: [Typ atrybutu] musi być [opis poprawnie podanego atrybutu]!
+
+\item \textbf{Próba dodania punktu kluczowego, konturu lub obiektu powyżej limitu ilości}
+\\\\komunikat: Nie dodano nowego [rodzaj bytu]! Maksymalna ilość [rodzaj bytu] wynosi [maksymalna ilość dla danego rodzaju]!
+
+\end{enumerate}
 
 \section{Testy akceptacyjne}
 
