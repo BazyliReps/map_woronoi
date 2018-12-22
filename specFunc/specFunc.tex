@@ -93,6 +93,7 @@ Użytkownik opcjonalnie dostarcza programowi następujące pliki:
 \item .gif
 \end{enumerate}
 która może służyć jako tło dla rysowanego układu nazywaną dalej   \textbf{grafiką}.
+Maksymalna wielkość grafiki to 10Mb.
 \end{enumerate}
 
 \subsection{przykład poprawnie sformatowanego pliku wejściowego}
@@ -131,11 +132,14 @@ która może służyć jako tło dla rysowanego układu nazywaną dalej   \textb
 
 \subsubsection{kontury / współrzędna}
 \textbf{Kontury} stanowią listę obiektów typu \textbf{współrzędna}.
-Kolejność w liście odwzorowuje kolejność dodawania \textbf{współrzędnych} do listy w ten sposób, że pierwsza dodana do \textbf{konturów} \textbf{współrzędna} będzie pierwszą \textbf{współrzędną} na liście. Każda z \textbf{współrzędnych} zawiera dokładnie dwa atrybuty:
+Kolejność w liście odwzorowuje kolejność dodawania \textbf{współrzędnych} do listy w ten sposób, że pierwsza dodana do \textbf{konturów} \textbf{współrzędna} będzie pierwszą \textbf{współrzędną} na liście.
+Każda z \textbf{współrzędnych} zawiera dokładnie dwa atrybuty:
 \begin{enumerate}
 \item \textit{x} - nieujemna liczba całkowita oznaczająca wartość odciętych w dwuwymiarowym układzie współrzędnych
 \item \textit{y} - nieujemna liczba całkowita oznaczająca wartość rzędnych w dwuwymiarowym układzie współrzędnych
 \end{enumerate}
+Kolejne punkty w liście muszą być tak ustawione, aby utworzone z nich granice nie przecinały się.
+Aby utworzyć obszar muszą zostać zadeklarowane co najmniej trzy punkty
 
 \subsubsection{punkt kluczowy}
 \textbf{Punkt kluczowy} symbolizuje instytucję finansową. 
@@ -145,6 +149,7 @@ Zawiera on dokładnie trzy atrybuty:
 \item \textit{y} - nieujemna liczba całkowita oznaczająca wartość rzędnych w dwuwymiarowym układzie współrzędnych
 \item \textit{Nazwa} - nazwa instytucji. Całość nazwy razem ze spacjami lub innymi białymi znakami nie może przekraczać 100 znaków. 
 \end{enumerate}
+Każdy z \textbf{punktów kluczowych} musi znajdować się w obszarze wyznaczonym przez \textbf{kontury}!
 
 \subsubsection{obiekt}
 \textbf{Obiekt} jest definiowany przez użytkownika w \textbf{pliku wejściowym} lub bezpośrednio w programie. 
@@ -154,7 +159,7 @@ Zawiera on dokładnie trzy atrybuty:
 \item \textit{y} - nieujemna liczba całkowita oznaczająca wartość rzędnych w dwuwymiarowym układzie współrzędnych
 \end{enumerate}
 Atrybuty w \textbf{obiekcie} mogą być dodawane w dowolnej kolejności.
-
+Każdy z \textbf{obiektów} musi znajdować się w obszarze wyznaczonym przez \textbf{kontury}!
 \subsection{opis formatowania}
 \begin{enumerate}
 
@@ -282,6 +287,9 @@ Aby przywrócić ich widok należy jeszcze raz nacisnąć na dany przycisk.
 
 \begin{enumerate}
 
+\item \textbf{Linie granic utworzonych z konturów krzyżują się}
+\\\\komunikat: Kolejne punkty w liście muszą być tak ustawione, aby utworzone z nich granice nie przecinały się!
+
 \item \textbf{Punkt kluczowy lub obiekt znajduje się poza konturami}
 \\\\komunikat: [Typ bytu] znajduje się poza podanymi konturami. Wszystkie punkty kluczowe oraz obiekty muszą znajdować się wewnątrz obszaru wyznaczonego przez kontury.
 
@@ -294,7 +302,38 @@ Aby przywrócić ich widok należy jeszcze raz nacisnąć na dany przycisk.
 \end{enumerate}
 
 \section{Testy akceptacyjne}
+W celu oceny spełnienia wymagań postawionych przed programem wykonane zostaną następujące testy:
+\begin{enumerate}
+\item wczytanie zbyt dużej \textbf{grafiki},
+\item wczytanie jako \textbf{grafiki} pliku nie będącego obrazem,
+\item wczytanie jako \textbf{grafiki} pliku o nieobsługiwanym rozszerzeniu,
+\item wczytanie jako \textbf{pliku wejściowego} pliku nie będącego plikiem tekstowym,
+\item wczytanie \textbf{pliku wejściowego} o formacie innym niż .txt,
+\item wczytanie \textbf{pliku wejściowego} o enkodowaniu innym niż UTF-8,
+\item wczytywanie \textbf{pliku wejściowego} z błędami danych takimi jak:
+\begin{enumerate}
+\item brakujące sekcje,
+\item źle numerowanie \textbf{linie deklaracji},
+\item brakujące \textbf{linie rozpoczynające},
+\item ujemne lub niecałkowite współrzędne,
+\item zbyt duża lub zbyt mała ilość \textbf{elementów} w linii,
+\item zbyt wiele znaków w linii,
+\item zbyt wiele \textbf{linii deklaracji} w danej sekcji,
+\item zawierające wielkie litery deklaracje typów zmiennych w sekcji definicji \textbf{obiektów},
+\end{enumerate}
+\item wczytanie \textbf{pliku wejściowego} z \textbf{obiektami} lub \textbf{punktami kluczowymi} znajdującego się poza \textbf{konturami},
+\item wczytanie \textbf{pliku wejściowego} z powtarzającymi się nazwami \textbf{punktów kluczowych} (lub \textbf{obiektów} w definicji),
+\item wczytanie \textbf{pliku wejściowego} z \textbf{obiektami}, punktami \textbf{konturów} bądź \textbf{punktami kluczowymi} znajdującymi się na tych samych współrzędnych,
+\item wczytanie \textbf{pliku wejściowego} z mniej niż trzema punktami \textbf{konturów},
+\item wczytanie \textbf{pliku wejściowego} z konturami tworzącymi przecinające się granice,
+\item w programie próba dodania punktu do \textbf{konturów} w taki sposób, że utworzone granice będą się przecinały,
+\item w programie próba dodania \textbf{punktu kluczowego} poza granicami \textbf{konturów},
+\item w programie próba dodania \textbf{punktu kluczowego} na zajmowanych już współrzędnych, 
+\item w programie próba dodania \textbf{punktu kluczowego} o nazwie już występującej,
+\item w programie próba dodania \textbf{punktu kluczowego} lub \textbf{konturu} o nieodpowiednich współrzędnych (ujemnych lub niecałkowitych),
+\item w programie próba dodania \textbf{punktu kluczowego} lub elementu \textbf{konturów} powyżej dopuszczalnej ilości.
 
+\end{enumerate}
 
 
 
