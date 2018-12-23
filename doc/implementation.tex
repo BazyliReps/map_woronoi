@@ -3,15 +3,11 @@
 \usepackage{polski}
 \usepackage{indentfirst}
 \usepackage[utf8]{inputenc}
-\usepackage{makecell}
-
-\usepackage{lastpage}
-\usepackage{fancyhdr}
-\pagestyle{fancy} 
 
 \newcommand{\code}[1]{\texttt{#1}}
 
-\cfoot{\thepage\ / \pageref{LastPage}}
+\usepackage{fancyhdr}
+\pagestyle{fancy} 
 
 \title {Projekt grupowy [GR3] -- 2018/2019\\Specyfikacja implementacyjna}
 \author{Grupa 7 \\\\ Sebastian Stasiak, indeks 291109 \\ Bazyli Reps, indeks ******}
@@ -21,5 +17,14 @@
 \maketitle
 \tableofcontents
 \newpage
+
+\section{Wykorzystane technologie}
+
+Projekt napisany jest w postaci aplikacji web'owej.
+Po stronie serwera wykorzystany jest framework \code{ASP.NET MVC 5}. Kod po stronie serwera pisany jest w \code{.NET Framework 4.7.1}, albo w \code{.NET Standard} jeśli nie ma potrzeby korzystania z żadnych funkcjonalności specyficznych dla środowiska Windows.
+Warstwa prezentacji opierać będzie się na plikach Razor (\code{.cshtml}).
+
+Po stronie użytkownika wykorzystany zostaje \code{JavaScript} (z założeniem, że przeglądarka użytkownika obsługuje \code{ECMAScript 9}), w tym popularna biblioteka \code{JQuery} oraz szereg pomniejszych bibliotek.
+\code{CSS} ujednolicony będzie poprzez wykorzystanie biblioteki \code{Bootstrap 4}.
 
 \end{document}
