@@ -101,24 +101,24 @@ Nie przyjmuje żadnych parametrów, zwraca jedynie stronę główną opisaną w 
 
 Przyjmuje jako parametr następujące obiekty:
 \begin{itemize}
-\item \code{IList<Vertex> vertices} - lista wierzchołków badanego obszaru.
-\item \code{IList<KeyMapObject> keyObjects} - lista ważnych obiektów (definiujących obszary)
-\item \code{IList<MapObjectType> types} - definicje typów dla własnych obiektów
-\item \code{IList<MapObject> objects} - obiekty znajdujące się na mapie
+\item \code{IList<Vertex> Vertices} - lista wierzchołków badanego obszaru.
+\item \code{IEnumerable<KeyMapObject> KeyObjects} - lista ważnych obiektów (definiujących obszary)
+\item \code{IEnumerable<MapObjectType> Types} - definicje typów dla własnych obiektów
+\item \code{IEnumerable<MapObject> Objects} - obiekty znajdujące się na mapie
 \end{itemize}
 
 Jeśli chodzi o typy wykorzystane powyżej, wyglądają one następująco:
 
 \subparagraph{\code{Vertex}}
 \begin{itemize}
-\item \code{int id} - id pozwalające zidentyfikować wiersz z którego pochodzą dane
+\item \code{int Id} - id pozwalające zidentyfikować wiersz z którego pochodzą dane
 \item \code{double X} - współrzędna x punktu
 \item \code{double Y} - współrzędna y punktu
 \end{itemize}
 
 \subparagraph{\code{KeyMapObject}}
 \begin{itemize}
-\item \code{int id} - id pozwalające zidentyfikować wiersz z którego pochodzą dane
+\item \code{int Id} - id pozwalające zidentyfikować wiersz z którego pochodzą dane
 \item \code{double X} - współrzędna x obiektu
 \item \code{double Y} - współrzędna y obiektu
 \item \code{string Name} - nazwa obiektu
@@ -128,17 +128,20 @@ Jeśli chodzi o typy wykorzystane powyżej, wyglądają one następująco:
 \begin{itemize}
 \item \code{int id} - id pozwalające zidentyfikować wiersz z którego pochodzą dane
 \item \code{string Name} - nazwa typu
-\item \code{Dictionary<string, Type> Parameters} - parametry obiektów danego typu
+\item \code{IDictionary<string, Type> Parameters} - parametry obiektów danego typu
 \end{itemize}
 
 \subparagraph{\code{MapObject}}
 \begin{itemize}
 \item \code{int id} - id pozwalające zidentyfikować wiersz z którego pochodzą dane
 \item \code{MapObjectType Type} - typ obiektu
-\item \code{Dictionary<string, string> Parameters} - parametry tego obiektu
+\item \code{IDictionary<string, string> Parameters} - parametry tego obiektu
 \end{itemize}
 
 Z racji tego, że powyższe obiekty są \code{DTO}, powinny być wszystkie niemutowalne (żadne property nie powinno móc zmienić stanu po zainstancjonowaniu obiektu).
+
+Otrzymane dane przekazywane są do serwisu, gdzie nastąpi ich walidacja (jeśli się nie powiedzie, zostanie wyrzucony wyjątek walidacji którego nie należy łapać, zostanie obsłużony przez exception handler).
+Następnie wygenerowany zostanie obiekt \code{Map}, który należy wykorzystać do utworzenia \code{MapViewModel} i przekazać do widoku \code{\_LoadMap} jako \code{model} aby na jego podstawie można było wygenerować \code{svg}.
 
 \paragraph{Obsługa błędów walidacji}
 
@@ -167,11 +170,31 @@ Całość mapy generowana jest za pomocą kodu \code{C\#} w partial view - \code
 
 \subsection{Logika biznesowa}
 
-\subsubsection{Walidacja}
-
 \subsubsection{Generacja mapy}
 
-\subsection{Testy jednostkowe}
+Dane otrzymane z kontrolera, po wcześniejszej walidacji, przetwarzane są na obiekt \code{Map}. Kryterium według którego następuje podział na obszary jest proste - Do obszaru należy ziemia, dla której "ważny punkt" definiujący obszar jest najbliższym takim punktem. Do podziału wykorzystany zostanie diagram Woronoja, który w przypadku przestrzeni dwuwymiarowej, dla danego zbioru n punktów, dzieli się płaszczyznę na n obszarów, w taki sposób, że każdy punkt w dowolnym obszarze znajduje się bliżej określonego punktu ze zbioru n punktów, niż od pozostałych n-1 punktów.
+
+
+\code{Map}
+
+\begin{itemize}
+\item \code{IList<Vertex> Vertices} - lista wierzchołków badanego obszaru.
+\item \code{IEnumerable<Region> Regions} - lista wyznaczonych obszarów
+\end{itemize}
+
+\code{Region}
+\begin{itemize}
+\item \code{KeyMapObject KeyObject} - punkt istotny definiujący obszar
+\item \code{IList<Vertex> Vertices} - lista wierzchołków obszaru.
+\item \code{IEnumerable<MapObject> Objects} - obiekty należące do obszaru
+\end{itemize}
+
+\subsubsection{Walidacja}
+
+Walidacja przeprowadzona zostaje przed przekazaniem danych do metody generującej.
+W celu walidacji wykorzystywana jest klasa \code{ValidatorOf<T>}, która jest zwyczajnie wariacją wzorca budowniczego. Użycie polega na utworzeniu klasy walidatora, przekazaniu mu odpowiednich zasad, a następnie wywołaniu na konkretnym obiekcie i wyrzucenia wyjątku jeśli walidacja się nie udała.
+
+\section{Testy jednostkowe}
 
 Testy wykonywane będą przy pomocy następujących bibliotek/frameworków:
 
