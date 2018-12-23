@@ -171,4 +171,23 @@ Całość mapy generowana jest za pomocą kodu \code{C\#} w partial view - \code
 
 \subsubsection{Generacja mapy}
 
+\subsection{Testy jednostkowe}
+
+Testy wykonywane będą przy pomocy następujących bibliotek/frameworków:
+
+\begin{itemize}
+\item xUnit
+\item Fluent Assertions
+\item NSubstitute
+\end{itemize}
+
+Dotyczyć będą tylko i wyłącznie metod publicznych zawartych w serwisie, w tym całości walidatora oraz wszystkich zasad do niego napisanych.
+Pisane są w stylu 3xA (Arrange, Act, Assert).
+Nazwy testów jednostkowych tworzone są według tego wzoru: \code{MethodName\_StateUnderTest\_ExpectedBehavior}, dla przykładu:
+\begin{itemize}
+\item \code{isAdult\_AgeLessThan18\_False}
+\item \code{withdrawMoney\_InvalidAccount\_ExceptionThrown}
+\item \code{admitStudent\_MissingMandatoryFields\_FailToAdmit}
+\end{itemize}
+
 \end{document}
