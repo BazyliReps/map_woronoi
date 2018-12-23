@@ -34,4 +34,26 @@ Możliwe jest także jej postawienie na dowolnej maszynie na której znajduje si
 W tym celu należy zainstalować na niej \code{.NET Framework Runtime 4.7.1} bądź nowszy, oraz IIS 10.
 Działanie na starszych wersjach jest możliwe, jednak nie jest gwarantowane i nie będzie testowane.
 
+\section{Struktura programu}
+
+Program ma strukturę warstwową. Z racji tego, że nie musi on przechowywać żadnych informacji, nie istnieje warstwa repozytorium. Tak więc, wyszczególnić możemy dwie warstwy, warstwę \textbf{logiki biznesowej}, i \textbf{prezentacji}.
+
+\subsection{Prezentacja}
+
+Określania też warstwą interfejsu użytkownika oraz web'ową. Jej zadaniem jest przedstawienie użytkownikowi danych oraz umożliwienie mu interakcji z serwisem. W jej skład wchodzą:
+
+\subsubsection{Skrypty}
+
+Skrypty, napisane w języku JavaScript, odpowiadają za obsługę interakcji użytkownika. 
+
+\subsubsection{Kontrolery}
+
+\subsubsection{Widoki}
+
+\subsection{Logika biznesowa}
+
+\subsubsection{Walidacja}
+
+\subsubsection{Generacja mapy}
+
 \end{document}
