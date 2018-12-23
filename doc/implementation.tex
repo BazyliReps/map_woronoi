@@ -51,6 +51,7 @@ Jej zadaniem jest przedstawienie użytkownikowi danych oraz umożliwienie mu int
 Skrypty, napisane w języku JavaScript, odpowiadają za obsługę interakcji użytkownika.
 
 \paragraph{Odczyt pliku wejściowego}
+
 Wskazany przez użytkownika plik zostanie wstępnie zwalidowany pod względem struktury, a następnie przekształcony w strukturę danych wysyłaną później do kontrolera.
 Struktura ta opisana jest w późniejszej części dokumentu.
 W przypadku, jeśli wprowadzony plik ma nieprawidłową strukturę, użytkownik otrzymuje jedynie stosowny komunikat.
@@ -64,6 +65,26 @@ Możliwa jest ich edycja.
 Wciśnięcie przycisku wywołuje odpowiednią fukcję JS, której zadaniem jest modyfikacja formularza, np. dodanie nowego wiersza, usunięcie starego, zmiana dostępnych pól w liście rozwijanej etc.
 Interakcja odbywać się będzie przy użyciu JQuery Selectors, przy założeniu, że każdy wiersz w formularzu ma ID ustalone według konwencji \code{typRekordu\_numer}.
 Czyli np. 4ty obiekt na liście ma ID \code{object\_3} (z racji na indeksowanie od 0).
+
+\paragraph{Wczytanie mapy}
+
+Po wciśnięciu przycisku do wysłania formularza, wykonany zostanie \code{POST} zawierający dane wejściowe (\code{content-type=application/json}) na endpoint \code{/LoadMap}.
+Struktura danych wejściowych powinna zostać prawidłowo odczytana w metodzie kontrolera o tej nazwie.
+
+Jeśli w \code{response} otrzymamy kod z zakresu \code{2xx Success}, oczekujemy że \code{content} zawiera \code{PartialView} z wyrenderowaną mapą wraz ze skryptami do jej interakcji.
+W takim wypadku należy załadować go do \code{div}'a do tego przeznaczonego.
+
+Jeśli otrzymamy kod \code{422 Unprocessable Entity} uznajemy, że w \code{content} znajduje się słownik błędów walidacji (gdzie kluczem jest \code{id} pola którego błąd dotyczy, a \code{value} jest wiadomość o błędzie).
+Każde pole którego dotyczył błąd powinno zostać zaznaczone na czerwono, a pod nim wyświetlić się wiadomość.
+Ponieważ otrzymujemy \code{id} pola, wystarczy je odnaleźć poprzez JQuery Selector.
+Gdy nastąpi edycja tego pola, oba te efekty powinny zniknąć.
+
+\paragraph{Wyświetlanie informacji o obszarach}
+
+Gdy mapa jest wyświetlona, interakcją zajmują się przekazane wraz z nią skrypty.
+Najechanie nad dowolny obszar powinno go podświetlić (to zrobione zostanie zwyczajnie za pomocą CSS), zaś kliknięcie na niego powinno wyświetlić okno zawierające wszystkie informacje na temat danego obszaru.
+Okno to stworzone zostanie za pomocą \code{Bootstrap Popovers} albo \code{Bootstrap Modal} (decyzja nastąpi po wypróbowaniu obu i ocenieniu względów estetycznych).
+Dane znajdujące się w nim, zaczerpnięte zostaną ze słownika przekazanego razem ze skryptami.
 
 \subsubsection{Kontrolery}
 
