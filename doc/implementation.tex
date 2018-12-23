@@ -86,7 +86,59 @@ Najechanie nad dowolny obszar powinno go podświetlić (to zrobione zostanie zwy
 Okno to stworzone zostanie za pomocą \code{Bootstrap Popovers} albo \code{Bootstrap Modal} (decyzja nastąpi po wypróbowaniu obu i ocenieniu względów estetycznych).
 Dane znajdujące się w nim, zaczerpnięte zostaną ze słownika przekazanego razem ze skryptami.
 
-\subsubsection{Kontrolery}
+\subsubsection{Kontroler}
+
+Z racji prostoty aplikacji istnieje tylko \code{HomeController}.
+Zawiera on dwie metody.
+W tej sekcji opisane też jest, w jaki sposób obsługiwane są wyjątki walidacji.
+
+\paragraph{Index}
+
+Główna metoda kontrolera, wywoływana gdy ktoś wejdzie na stronę.
+Nie przyjmuje żadnych parametrów, zwraca jedynie stronę główną opisaną w specyfikacji funkcjonalnej.
+
+\paragraph{LoadMap}
+
+Przyjmuje jako parametr następujące obiekty:
+\begin{itemize}
+\item \code{IList<Vertex> vertices} - lista wierzchołków badanego obszaru.
+\item \code{IList<KeyMapObject> keyObjects} - lista ważnych obiektów (definiujących obszary)
+\item \code{IList<MapObjectType> types} - definicje typów dla własnych obiektów
+\item \code{IList<MapObject> objects} - obiekty znajdujące się na mapie
+\end{itemize}
+
+Jeśli chodzi o typy wykorzystane powyżej, wyglądają one następująco:
+
+\subparagraph{\code{Vertex}}
+\begin{itemize}
+\item \code{int id} - id pozwalające zidentyfikować wiersz z którego pochodzą dane
+\item \code{double X} - współrzędna x punktu
+\item \code{double Y} - współrzędna y punktu
+\end{itemize}
+
+\subparagraph{\code{KeyMapObject}}
+\begin{itemize}
+\item \code{int id} - id pozwalające zidentyfikować wiersz z którego pochodzą dane
+\item \code{double X} - współrzędna x obiektu
+\item \code{double Y} - współrzędna y obiektu
+\item \code{string Name} - nazwa obiektu
+\end{itemize}
+
+\subparagraph{\code{MapObjectType}}
+\begin{itemize}
+\item \code{int id} - id pozwalające zidentyfikować wiersz z którego pochodzą dane
+\item \code{string Name} - nazwa typu
+\item \code{Dictionary<string, Type> Parameters} - parametry obiektów danego typu
+\end{itemize}
+
+\subparagraph{\code{MapObject}}
+\begin{itemize}
+\item \code{int id} - id pozwalające zidentyfikować wiersz z którego pochodzą dane
+\item \code{MapObjectType Type} - typ obiektu
+\item \code{Dictionary<string, string> Parameters} - parametry tego obiektu
+\end{itemize}
+
+Z racji tego, że powyższe obiekty są \code{DTO}, powinny być wszystkie niemutowalne (żadne property nie powinno móc zmienić stanu po zainstancjonowaniu obiektu).
 
 \subsubsection{Widoki}
 
