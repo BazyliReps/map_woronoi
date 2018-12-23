@@ -3,6 +3,7 @@
 \usepackage{polski}
 \usepackage{indentfirst}
 \usepackage[utf8]{inputenc}
+\usepackage{hyperref}
 
 \newcommand{\code}[1]{\texttt{#1}}
 
@@ -36,15 +37,33 @@ Działanie na starszych wersjach jest możliwe, jednak nie jest gwarantowane i n
 
 \section{Struktura programu}
 
-Program ma strukturę warstwową. Z racji tego, że nie musi on przechowywać żadnych informacji, nie istnieje warstwa repozytorium. Tak więc, wyszczególnić możemy dwie warstwy, warstwę \textbf{logiki biznesowej}, i \textbf{prezentacji}.
+Program ma strukturę warstwową.
+Z racji tego, że nie musi on przechowywać żadnych informacji, nie istnieje warstwa repozytorium.
+Tak więc, wyszczególnić możemy dwie warstwy, warstwę \textbf{logiki biznesowej}, i \textbf{prezentacji}.
 
 \subsection{Prezentacja}
 
-Określania też warstwą interfejsu użytkownika oraz web'ową. Jej zadaniem jest przedstawienie użytkownikowi danych oraz umożliwienie mu interakcji z serwisem. W jej skład wchodzą:
+Określania też warstwą interfejsu użytkownika oraz web'ową.
+Jej zadaniem jest przedstawienie użytkownikowi danych oraz umożliwienie mu interakcji z serwisem. W jej skład wchodzą:
 
 \subsubsection{Skrypty}
 
-Skrypty, napisane w języku JavaScript, odpowiadają za obsługę interakcji użytkownika. 
+Skrypty, napisane w języku JavaScript, odpowiadają za obsługę interakcji użytkownika.
+
+\paragraph{Odczyt pliku wejściowego}
+Wskazany przez użytkownika plik zostanie wstępnie zwalidowany pod względem struktury, a następnie przekształcony w strukturę danych wysyłaną później do kontrolera.
+Struktura ta opisana jest w późniejszej części dokumentu.
+W przypadku, jeśli wprowadzony plik ma nieprawidłową strukturę, użytkownik otrzymuje jedynie stosowny komunikat.
+
+Do odczytu pliku wykorzystany zostanie \href{https://developer.mozilla.org/en-US/docs/Web/API/FileReader}{\code{FileReader}}.
+
+\paragraph{Edycja wprowadzonych danych}
+
+Wczytane dane wyświetlone są w postaci formularza na stronie.
+Możliwa jest ich edycja.
+Wciśnięcie przycisku wywołuje odpowiednią fukcję JS, której zadaniem jest modyfikacja formularza, np. dodanie nowego wiersza, usunięcie starego, zmiana dostępnych pól w liście rozwijanej etc.
+Interakcja odbywać się będzie przy użyciu JQuery Selectors, przy założeniu, że każdy wiersz w formularzu ma ID ustalone według konwencji \code{typRekordu\_numer}.
+Czyli np. 4ty obiekt na liście ma ID \code{object\_3} (z racji na indeksowanie od 0).
 
 \subsubsection{Kontrolery}
 
