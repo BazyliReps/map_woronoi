@@ -63,7 +63,7 @@ Do odczytu pliku wykorzystany zostanie \href{https://developer.mozilla.org/en-US
 Wczytane dane wyświetlone są w postaci formularza na stronie.
 Możliwa jest ich edycja.
 Wciśnięcie przycisku wywołuje odpowiednią fukcję JS, której zadaniem jest modyfikacja formularza, np. dodanie nowego wiersza, usunięcie starego, zmiana dostępnych pól w liście rozwijanej etc.
-Interakcja odbywać się będzie przy użyciu JQuery Selectors, przy założeniu, że każdy wiersz w formularzu ma ID ustalone według konwencji \code{typRekordu\_numer}.
+Interakcja odbywać się będzie przy użyciu jQuery Selectors, przy założeniu, że każdy wiersz w formularzu ma ID ustalone według konwencji \code{typRekordu\_numer}.
 Czyli np. 4ty obiekt na liście ma ID \code{object\_3} (z racji na indeksowanie od 0).
 
 \paragraph{Wczytanie mapy}
@@ -76,7 +76,7 @@ W takim wypadku należy załadować go do \code{div}'a do tego przeznaczonego.
 
 Jeśli otrzymamy kod \code{422 Unprocessable Entity} uznajemy, że w \code{content} znajduje się słownik błędów walidacji (gdzie kluczem jest \code{id} pola którego błąd dotyczy, a \code{value} jest wiadomość o błędzie).
 Każde pole którego dotyczył błąd powinno zostać zaznaczone na czerwono, a pod nim wyświetlić się wiadomość.
-Ponieważ otrzymujemy \code{id} pola, wystarczy je odnaleźć poprzez JQuery Selector.
+Ponieważ otrzymujemy \code{id} pola, wystarczy je odnaleźć poprzez jQuery Selector.
 Gdy nastąpi edycja tego pola, oba te efekty powinny zniknąć.
 
 \paragraph{Wyświetlanie informacji o obszarach}
@@ -140,7 +140,30 @@ Jeśli chodzi o typy wykorzystane powyżej, wyglądają one następująco:
 
 Z racji tego, że powyższe obiekty są \code{DTO}, powinny być wszystkie niemutowalne (żadne property nie powinno móc zmienić stanu po zainstancjonowaniu obiektu).
 
+\paragraph{Obsługa błędów walidacji}
+
+Zaimplementowany zostanie exception handler, który będzie w pierwszej kolejności obsługiwał wszystkie wyjątki wyrzucone w serwisie. Jeśli wyjątkiem będzie \code{ValidationException}, to do \code{request}'a przy którym został on wyrzucony przekazany zostanie \code{JSON} ze słownikiem błędów walidacji, a wyjątek zostanie oznaczony jako obsłużony.
+
 \subsubsection{Widoki}
+
+Widoki realizowane są za pomocą Razor Pages (\code{.cshtml}) pozwalających na proste wykonanie kodu \code{C\#} do generacji \code{HTML}'a wysyłanego jako odpowiedź na \code{request}.
+Istnieć będzie tylko jeden widok, \code{index}, wszystko będzie ładowane na niego za pomocą \code{request}ów.
+Z tego wynika, że jest to \code{SPA (Single Page Application)}.
+
+\paragraph{Index}
+
+Główna strona, zawiera jedynie wyszczególnione miejsca na załadowanie konkretnych elementów, oraz zawiera biblioteki które trzeba załadować (\code{Bootstrap, Modernizer, jQuery}.
+Formularz pokazywany jest jako \code{Partial View}, a mapa pozostaje pusta dopóki nie zostanie załadowana potem za pomocą skryptów.
+
+\paragraph{Formularz}
+
+Formularz do wprowadzania danych wejściowych (w tym z pliku).
+Co prawda otoczony jest za pomocą \code{$\langle$form$\rangle$}, ale dynamiczna natura formularza uniemożliwia automatyczną jego serializację, tak więc trzeba to zrobić za pomocą skryptu. 
+
+\paragraph{Mapa}
+
+Mapa wyświetlana jest jako \code{svg}, głównie składający się z \code{polygon} i \code {polyline} pogrupowanych w grupy \code{g} według obszarów.
+Całość mapy generowana jest za pomocą kodu \code{C\#} w partial view - \code{LoadMap} na podstawie danych otrzymanych z serwisu.
 
 \subsection{Logika biznesowa}
 
