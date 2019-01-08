@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Web.Mvc;
 using Astruk.Common.Interfaces;
+using Astruk.Common.Models;
 
 namespace Astruk.Controllers
 {
@@ -21,8 +23,10 @@ namespace Astruk.Controllers
 		}
 
 		[HttpPost]
-		public PartialViewResult LoadMap()
+		public PartialViewResult LoadMap(IList<Vertex> vertices)
 		{
+			var x = vertices;
+
 			throw new NotImplementedException();
 		}
 	}

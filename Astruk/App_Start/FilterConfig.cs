@@ -1,4 +1,5 @@
 ﻿using System.Web.Mvc;
+using Astruk.Filters;
 
 namespace Astruk
 {
@@ -6,7 +7,7 @@ namespace Astruk
 	{
 		public static void RegisterGlobalFilters(GlobalFilterCollection filters)
 		{
-			filters.Add(new HandleErrorAttribute());
+			filters.Add(new ValidationErrorHandlerAttribute());
 		}
 	}
 }

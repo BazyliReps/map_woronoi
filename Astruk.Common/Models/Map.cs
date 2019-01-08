@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Astruk.Common.Interfaces;
 
 namespace Astruk.Common.Models
 {
