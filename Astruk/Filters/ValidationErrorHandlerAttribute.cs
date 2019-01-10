@@ -13,6 +13,7 @@ namespace Astruk.Filters
 			    || !IsAjax(filterContext))
 				base.OnException(filterContext);
 
+			filterContext.HttpContext.Response.StatusCode = 422; //Unprocessable Entity, it's HTTP Extension, and System.Web.HttpStatusCode doesn't contain it.
 			filterContext.Result = new JsonResult
 			{
 				Data = ((ValidationException) filterContext.Exception).ErrorMessages,
