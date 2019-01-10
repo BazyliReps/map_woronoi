@@ -1,11 +1,21 @@
 ﻿
 <div class="row">
+
+
+
     <div class="col-md-8">
         <h2>Mapa</h2>
         <p>
-            @{
-                Html.RenderPartial("_LoadMap");
-            }
+            <div id="imageDiv"></div>
+            <div id="imgSrc" style="display:none"></div>
+            <script>
+                var canvas = document.createElement("canvas");
+                canvas.setAttribute("width", window.innerWidth * 0.7);
+                canvas.setAttribute("height", window.innerHeight);
+                canvas.setAttribute("style", "position: absolute, x:0; y:0;");
+                let imageDiv = document.getElementById("imageDiv");
+                imageDiv.appendChild(canvas);
+            </script>
         </p>
     </div>
     <div class="col-md-4">
@@ -25,7 +35,7 @@
                     <label for="vertexY">pozycja Y</label>
                     <br />
                 </form>
-                <button id="submitPoint" onclick="addVertex()">dodaj punkt do konturów</button> 
+                <button id="submitPoint" onclick="addVertex()">dodaj punkt do konturów</button>
             </section>
 
             <!--DODAWANIE PUNKTÓW KLUCZOWYCH-->
@@ -46,14 +56,17 @@
                     <br />
 
                 </form>
-                <button id="submitKeyPoint" onclick="addKeyPoint()">dodaj punkt specjalny</button> 
+                <button id="submitKeyPoint" onclick="addKeyPoint()">dodaj punkt specjalny</button>
 
             </section>
 
             <!--SKRYPTY-->
+
             <script src="~/Scripts/index/MapClasses.js"></script>
             <script src="~/Scripts/index/Parsing.js"></script>
             <script src="~/Scripts/index/indexScript.js"></script>
+            <script src="~/Scripts/index/Drawing.js"></script>
+            
 
             <!--WCZYTYWANIE PLIKU-->
             <section style="padding: 30px">
@@ -61,8 +74,16 @@
                 <form>
                     <input type="file" id="textFile" name="textFile" onchange="readFile(event)" />
                 </form>
-
             </section>
+
+            <!--WCZYTYWANIE GRAFIKI-->
+            <section style="padding: 30px">
+                <h3> Wczytaj grafikę:</h3>
+                <form>
+                    <input type="file" id="imageUpload" accept=".gif,.jpg,.jpeg,.png" onchange="readImage(event)" />
+                </form>
+            </section>
+
 
             <!--LISTA OBIEKTOW-->
             <section class="container">
@@ -71,7 +92,7 @@
 
                 </nav>
                 <button id="toggleObjectsViewButton" onclick="hide('objects')" style="display:none">pokaż/schowaj</button>
-                <div id="objects">
+                <div id="objects" style="display:block">
                 </div>
 
             </section>
@@ -87,3 +108,8 @@
         </div>
     </div>
 </div>
+<script>
+    let allData = new AllData();
+    let jsonVal = document.getElementById('hiddenData');
+    jsonVal.innerHTML = JSON.stringify(allData);
+</script>

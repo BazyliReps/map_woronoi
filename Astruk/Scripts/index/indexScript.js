@@ -1,13 +1,13 @@
-﻿    
+﻿
 
 
 
-var keyPointXform = document.getElementById("keyX"); 
-var keyPointYform = document.getElementById("keyY"); 
+var keyPointXform = document.getElementById("keyX");
+var keyPointYform = document.getElementById("keyY");
 var keyPointNameForm = document.getElementById("keyName");
 
 var vertexXform = document.getElementById("vertexX");
-var vertexYform = document.getElementById("vertexY"); 
+var vertexYform = document.getElementById("vertexY");
 
 function clearForms() {
     let forms = document.getElementsByTagName('input');
@@ -29,7 +29,7 @@ function addVertex() {
     clearData();
 
 
-    let newId = allData.Vertices.length + 1; 
+    let newId = allData.Vertices.length + 1;
 
     let newVertex = new Vertex(newId, xValue, yValue);
     allData.Vertices.push(newVertex);
@@ -39,8 +39,9 @@ function addVertex() {
     fillObjectsList(allData);
     sendAllData(allData);
     clearForms();
-    
-} 
+    drawData(allData, true);
+
+}
 
 function addKeyPoint() {
 
@@ -65,18 +66,49 @@ function addKeyPoint() {
     fillObjectsList(allData);
     sendAllData(allData);
     clearForms();
-
-} 
+    drawData(allData, false);
+}
 
 
 function readFile(evt) {
     clearData();
-    var input = evt.target;
-    var reader = new FileReader();
+    let input = evt.target;
+    let reader = new FileReader();
     reader.onload = parseFile;
 
     reader.readAsText(input.files[0], "UTF-8");
-} 
+}
+
+function readImage(evt) {
+    let imageDiv = document.getElementById("imageDiv");
+    let imgSrc = document.getElementById("imgSrc");
+    let image = new Image();
+
+    let hiddenData = document.getElementById('hiddenData');
+    let allData = JSON.parse(hiddenData.textContent);
+
+    image.src = URL.createObjectURL(evt.target.files[0]);
+    imgSrc.innerHTML = image.src;
+    image.onload = function () {
+        var canvas = imageDiv.childNodes[0];
+        var g = canvas.getContext("2d");
+        g.fillStyle = "white";
+        g.fillRect(0, 0, canvas.width, canvas.height);
+        g.drawImage(image, 0, 0);
+        drawData(allData, false);
+    }
+}
+
+function getPositionId(object) {
+    let allData = JSON.parse(document.getElementById("hiddenData").textContent);
+    let mapObjectType = getType(allData, object.Type);
+    let i = 0;
+    for (; i < mapObjectType.Parameters.length; i ++) {
+        if (mapObjectType.Parameters[i].Name === "X") {
+            return i;
+        }
+    }
+}
 
 
 function sendAllData(allData) {
@@ -90,11 +122,16 @@ function sendAllData(allData) {
     http.open('POST', url, true);
     http.setRequestHeader('Content-type', 'application/json');
     http.send(jsonData);
-
-    
+    console.log(jsonData);
+    http.onreadystatechange = function () {
+        if (http.readyState == 200) {
+            document.getElementById('map').innerHTML = http.response;
+        } else {
+            console.log("jest kaszana");
+        }
+    }
 
 }
-
 
 
 function fillObjectsList(allData) {
@@ -122,7 +159,7 @@ function fillObjectsList(allData) {
         output += "</li>"
     }
     objectsDisplay.insertAdjacentHTML('beforeend', output);
-} 
+}
 
 function makeObjectListElementOpening(divId) {
     return "<li id=\"" + divId + "\"  onclick=\"hide('" + divId + "parameters')\">";
@@ -130,7 +167,7 @@ function makeObjectListElementOpening(divId) {
 
 function makeParametersListOpening(divId) {
     return "<ul id=\"" + divId + "parameters\" style=\"display:none\">";
-} 
+}
 
 
 
@@ -141,12 +178,12 @@ function hide(id) {
     } else {
         elem.style.display = "block";
     }
-} 
+}
 
 function showToggleObjectsViewButton() {
     let button = document.getElementById("toggleObjectsViewButton");
     button.style.display = "block";
-} 
+}
 
 function clearData() {
     let obj = document.getElementById('objects');
@@ -154,7 +191,4 @@ function clearData() {
     obj.innerHTML = "";
     hid.innerHTML = "";
 }
-
-
-
 
