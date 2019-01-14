@@ -41,11 +41,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Interfaces\IMapService.cs" />
+    <Compile Include="Interfaces\ITriangulationService.cs" />
+    <Compile Include="Models\Point.cs" />
     <Compile Include="Models\Region.cs" />
     <Compile Include="Models\Map.cs" />
     <Compile Include="Models\KeyMapObject.cs" />
     <Compile Include="Models\MapObject.cs" />
     <Compile Include="Models\MapObjectType.cs" />
+    <Compile Include="Models\Edge.cs" />
+    <Compile Include="Models\Triangle.cs" />
     <Compile Include="Models\Vertex.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -5,7 +5,7 @@ namespace Astruk.Common.Models
 {
 	public class MapObjectType
 	{
-		public MapObjectType(int id, string name, IDictionary<string, Type> parameters)
+		public MapObjectType(int id, string name, IDictionary<string, string> parameters)
 		{
 			Id = id;
 			Name = name;
@@ -14,6 +14,6 @@ namespace Astruk.Common.Models
 
 		public int Id { get; }
 		public string Name { get; }
-		public IDictionary<string, Type> Parameters { get; }
+		public IDictionary<string, string> Parameters { get; }
 	}
 }

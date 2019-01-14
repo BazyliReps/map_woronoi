@@ -4,7 +4,7 @@
         this.X = x;
         this.Y = y;
     }
-} 
+}
 
 class KeyMapObject {
     constructor(id, x, y, name) {
@@ -79,6 +79,6 @@ class AllData {
             this.Objects.push(object);
     }
 
-    
+
 
 }

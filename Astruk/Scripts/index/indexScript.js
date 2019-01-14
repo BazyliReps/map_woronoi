@@ -17,6 +17,31 @@ function clearForms() {
     }
 }
 
+//POST
+function sendAllData(allData) {
+    let jsonData = JSON.stringify(allData);
+    const url = "Home/LoadMap";
+
+    console.log(allData);
+
+    let jsonDiv = document.getElementById("hiddenData");
+    jsonDiv.insertAdjacentHTML('beforeend', jsonData);
+
+
+
+    $.ajax({
+        url: url,
+        type: "POST",
+        data: jsonData,
+        contentType: "application/json; charset = utf-8",
+        dataType: "json",
+        success: function (returnData) {
+            console.log(returnData);
+            DrawTriangles(returnData);
+        }
+    })
+}
+
 
 function addVertex() {
 
@@ -103,34 +128,11 @@ function getPositionId(object) {
     let allData = JSON.parse(document.getElementById("hiddenData").textContent);
     let mapObjectType = getType(allData, object.Type);
     let i = 0;
-    for (; i < mapObjectType.Parameters.length; i ++) {
+    for (; i < mapObjectType.Parameters.length; i++) {
         if (mapObjectType.Parameters[i].Name === "X") {
             return i;
         }
     }
-}
-
-
-function sendAllData(allData) {
-    let jsonData = JSON.stringify(allData);
-    const http = new XMLHttpRequest();
-    const url = "Home/LoadMap";
-
-    let jsonDiv = document.getElementById("hiddenData");
-    jsonDiv.insertAdjacentHTML('beforeend', jsonData);
-
-    http.open('POST', url, true);
-    http.setRequestHeader('Content-type', 'application/json');
-    http.send(jsonData);
-    console.log(jsonData);
-    http.onreadystatechange = function () {
-        if (http.readyState == 200) {
-            document.getElementById('map').innerHTML = http.response;
-        } else {
-            console.log("jest kaszana");
-        }
-    }
-
 }
 
 
