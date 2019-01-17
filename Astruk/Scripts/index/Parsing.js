@@ -32,10 +32,7 @@
                 break;
         }
     }
-    //fillObjectsList(allData);
     sendAllData(allData);
-    //showToggleObjectsViewButton();
-    //drawData(allData, false);
 
 } 
 

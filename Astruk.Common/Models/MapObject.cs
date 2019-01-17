@@ -13,6 +13,6 @@ namespace Astruk.Common.Models
 
 		public int Id { get; }
 		public MapObjectType Type { get; }
-		private IDictionary<string,string> Parameters { get; }
+		public IDictionary<string,string> Parameters { get; }
 	}
 }

@@ -44,9 +44,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\CoordsConstaints.cs" />
+    <Compile Include="Helpers\Triangulator.cs" />
     <Compile Include="MapService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TriangulationService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

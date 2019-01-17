@@ -11,7 +11,7 @@
             <script>
                 var canvas = document.createElement("canvas");
                 canvas.setAttribute("width", window.innerWidth * 0.7);
-                canvas.setAttribute("height", 1000);
+                canvas.setAttribute("height", 3000);
                 canvas.setAttribute("style", "position: absolute, x:0; y:0;");
                 let imageDiv = document.getElementById("imageDiv");
                 imageDiv.appendChild(canvas);
@@ -73,7 +73,7 @@
             <section style="padding: 30px">
                 <h3> Wczytaj plik z danymi:</h3>
                 <form>
-                    <input type="file" id="textFile" name="textFile" onchange="readFile(event)" />
+                    <input type="file" id="textFile" accept=".txt" name="textFile" onchange="readFile(event)" />
                 </form>
             </section>
 

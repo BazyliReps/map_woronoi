@@ -36,8 +36,18 @@ function sendAllData(allData) {
         contentType: "application/json; charset = utf-8",
         dataType: "json",
         success: function (returnData) {
+            let canvas = document.getElementById("imageDiv").childNodes[0];
+            var context = canvas.getContext("2d");
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
             console.log(returnData);
-            DrawTriangles(returnData);
+            DrawTriangles(returnData.triangles, context);
+            DrawVertices(allData.Vertices, context);
+            let i = 0;
+            for (; i < returnData.points.length; i++) {
+                DrawVertices(returnData.points[i].voronoiVertices, context);
+            }
+            DrawKeyPoints(returnData.triangles, context);
         }
     })
 }

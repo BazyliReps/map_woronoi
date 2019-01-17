@@ -9,12 +9,10 @@ namespace Astruk.Controllers
 {
     public class HomeController : Controller
     {
-        public ITriangulationService TriangulationService { get; }
         private IMapService MapService { get; }
 
-        public HomeController(IMapService mapService, ITriangulationService triangulationService)
+        public HomeController(IMapService mapService)
         {
-            TriangulationService = triangulationService;
             MapService = mapService;
         }
 
@@ -28,19 +26,49 @@ namespace Astruk.Controllers
         [HttpPost]
         public /*PartialViewResult*/JsonResult LoadMap(IList<VertexVM> Vertices, IEnumerable<KeyMapObjectVM> KeyObjects, IEnumerable<MapObjectTypeVM> Types, IEnumerable<MapObjectVM> Objects)
         {
-            List<Point> Points = new List<Point>();
-            int i = 0;
-            
-            foreach (var keyObject in KeyObjects) {
-                Points.Add(new Point(keyObject.X, keyObject.Y));
-            }
-            
-            var Triangles = TriangulationService.Triangulate(Points);
 
-            return Json(Triangles);
+
+            var points = new List<Point>();
+            var vertices = new List<Vertex>();
+            var keyObjects = new List<KeyMapObject>();
+            var types = new List<MapObjectType>();
+            var objects = new List<MapObject>();
+
+            if (Vertices != null) {
+                foreach (var vertex in Vertices) {
+                    vertices.Add(new Vertex(vertex.Id, vertex.X, vertex.Y));
+                }
+            }
+
+            if (KeyObjects != null) {
+
+                foreach (var keyObject in KeyObjects) {
+                    var newPoint = new Point(keyObject.X, keyObject.Y);
+                    if (!points.Contains(newPoint)) {
+                        points.Add(newPoint);
+                    }
+                    keyObjects.Add(new KeyMapObject(keyObject.Id, keyObject.X, keyObject.Y, keyObject.Name));
+                }
+            }
+
+            foreach (var type in Types) {
+                types.Add(new MapObjectType(type.Id, type.Name, type.Parameters));
+            }
+
+            if (Objects != null) {
+
+                foreach (var obj in Objects) {
+                    objects.Add(new MapObject(obj.Id, types.First(type => type.Id == obj.Type.Id), obj.Parameters));
+                }
+            }
+
+            var testMap = MapService.GenerateMap(vertices, keyObjects, (IEnumerable<MapObjectType>)types, objects);
+
+
+            return Json(testMap);
 
         }
-        
+
 
     }
 

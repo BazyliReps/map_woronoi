@@ -9,6 +9,6 @@ namespace Astruk.ViewModels
     {
         public int Id { get; set; }
         public MapObjectTypeVM Type { get; set; }
-        private Dictionary<string, string> Parameters { get; set; }
+        public Dictionary<string, string> Parameters { get; set; }
     }
 }

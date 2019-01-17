@@ -1,19 +1,22 @@
-﻿using Astruk.Common.Interfaces;
-using Astruk.Common.Models;
+﻿using Astruk.Common.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Astruk.Services
+namespace Astruk.Services.Helpers
 {
-    internal class TriangulationService : ITriangulationService
+    class Triangulator
     {
-        public IEnumerable<Triangle> Triangulate(IEnumerable<Point> KeyObjects)
+        public TestMap Triangulate(IEnumerable<Point> KeyObjects, IList<Vertex> Vertices)
         {
             var Hull = new LinkedList<Edge>();
             var Triangles = new List<Triangle>(100);
             var Points = KeyObjects.OrderBy(v => v.X).ToList();
             bool madeTriangle = false;
+
+            CoordsConstaints Constraints = new CoordsConstaints(Vertices);
 
             InitPoints(Points);
 
@@ -53,9 +56,9 @@ namespace Astruk.Services
 
                         //is upper reversed?
                         if (AreReversedEdges(nextEdgeNode.Value, upperEdge)) {
-                            Hull.Remove(nextEdgeNode);
                             nextEdgeNode.Value.baseTriangle.AddNeighbour(newTriangle);
                             newTriangle.AddNeighbour(nextEdgeNode.Value.baseTriangle);
+                            Hull.Remove(nextEdgeNode);
                         } else {
                             upperEdge.baseTriangle = newTriangle;
                             Hull.AddAfter(head, upperEdge);
@@ -70,38 +73,96 @@ namespace Astruk.Services
                 }
             }
 
-            
-            
-            foreach(var t in Triangles) {
-                foreach(var tt in Triangles) {
-                    if(t == tt) {
-                        continue;
-                    }
-                    else if(CheckIfNeighbors(t,tt)) {
-                        t.neigh++;
-                        t.nei.Add(tt.ToString());
-                    }
-                }
-            }
-            
+
+            InitVoronoiCreation(Triangles);
+            GetVoronoiVertices(Points, Constraints);
+
             foreach (var t in Triangles) {
                 t.triangleNeighbours = null;
             }
+            foreach (var p in Points) {
+                p.adjacentTriangles = null;
+                p.exoTriangles = null;
+            }
+
+            return new TestMap(Triangles, Points);
+        }
+
+        private void InitVoronoiCreation(List<Triangle> allTriangles)
+        {
+            foreach (var triangle in allTriangles) {
+                for (int i = 0; i < 3; i++) {
+                    Point vertex = triangle.points[i];
+                    var prevIndex = i == 0 ? 2 : i - 1;
+                    if (triangle.triangleNeighbours[i] == null || triangle.triangleNeighbours[prevIndex] == null) {
+                        vertex.exoTriangles.Add(triangle);
+                    } else {
+                        vertex.adjacentTriangles.Add(triangle);
+                    }
+                }
+            }
+        }
 
 
-            return Triangles;
+        private void GetVoronoiVertices(List<Point> allPoints, CoordsConstaints constraints)
+        {
+            foreach (var deluanVertex in allPoints) {
+                if (deluanVertex.exoTriangles.Count == 0) {
+
+                    var firstTriangle = deluanVertex.adjacentTriangles.First();
+                    var currentTriangle = firstTriangle;
+                    var numberOfTriangles = deluanVertex.adjacentTriangles.Count;
+                    for (int j = 0; j < numberOfTriangles; j++) {
+                        deluanVertex.voronoiVertices.Add(currentTriangle.circumcenter);
+                        deluanVertex.adjacentTriangles.Remove(currentTriangle);
+                        for (int i = 0; i < 3; i++) {
+                            var nextTriangle = currentTriangle.triangleNeighbours[i];
+                            if (nextTriangle != null && deluanVertex.adjacentTriangles.Contains(nextTriangle)) {
+                                currentTriangle = nextTriangle;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+
+        private void MakeExoLines(Triangle triangle)
+        {
+            for (int i = 0; i < 3; i++) {
+                if (triangle.triangleNeighbours[i] == null) {
+                    Edge exoEdge;
+                    switch (i) {
+                        case 0:
+                            exoEdge = new Edge(triangle.points[0], triangle.points[1]);
+                            break;
+                        case 1:
+                            exoEdge = new Edge(triangle.points[1], triangle.points[2]);
+                            break;
+                        case 2:
+                            exoEdge = new Edge(triangle.points[2], triangle.points[0]);
+                            break;
+                    }
+                }
+            }
+
         }
 
         private void LegalizeEdges(List<Triangle> triangles, Triangle legalisedTriangle, LinkedList<Edge> hull)
         {
-            var legalisationQueue = new Queue<Triangle>();
+            var legalisationQueue = new Queue<Triangle>(100);
             legalisationQueue.Enqueue(legalisedTriangle);
+
+            var ignoreList = new List<Triangle>();
 
 
             while (legalisationQueue.Count != 0) {
                 Triangle currentTriangle = legalisationQueue.Dequeue();
 
-                if(currentTriangle == null) {
+                if (ignoreList.Contains(currentTriangle)) {
+                    ignoreList.Remove(currentTriangle);
+                    currentTriangle = null;
                     continue;
                 }
 
@@ -117,8 +178,6 @@ namespace Astruk.Services
                         if (innerAngle > 180) {
                             //swap edges
 
-                            
-
                             var newTriangles = SwapEdgesAndFixNeighborRef(currentTriangle, adjacentTriangle, currentTriangle.points[currentTriangleVertexIndex]
                                 , adjacentTriangle.points[adjacentTriangleVertexIndex]);
                             var firstNew = newTriangles[0];
@@ -131,6 +190,7 @@ namespace Astruk.Services
                             triangles.Add(newTriangles[1]);
 
                             if (legalisationQueue.Contains(adjacentTriangle)) {
+                                ignoreList.Add(adjacentTriangle);
                                 adjacentTriangle = null;
                             }
 
@@ -198,7 +258,7 @@ namespace Astruk.Services
 
             newTriangles.Add(first);
             newTriangles.Add(second);
-            
+
             return newTriangles;
         }
 
@@ -224,7 +284,7 @@ namespace Astruk.Services
         private void FixNeighbors(Triangle beforeSwap1, Triangle beforeSwap2, Triangle afterSwap1, Triangle afterSwap2)
         {
             foreach (var neighbor in beforeSwap1.triangleNeighbours) {
-                if(neighbor == beforeSwap2) {
+                if (neighbor == beforeSwap2) {
                     continue;
                 }
                 if (CheckIfNeighbors(neighbor, afterSwap1)) {
@@ -236,7 +296,7 @@ namespace Astruk.Services
                     afterSwap2.AddNeighbour(neighbor);
                 }
             }
-            
+
         }
 
         private int GetNeighbourIndexByVertex(Point vertex, Point[] vertices)
@@ -252,10 +312,6 @@ namespace Astruk.Services
             } else
                 return t1.points.Intersect(t2.points).Count() == 2;
         }
-
-
-
-        
 
         private void InitPoints(List<Point> p)
         {
@@ -294,9 +350,5 @@ namespace Astruk.Services
             Hull.AddLast(edge2);
 
         }
-
-        
-
     }
-
 }

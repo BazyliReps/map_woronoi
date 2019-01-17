@@ -11,7 +11,6 @@ namespace Astruk.DI
 		public static void RegisterServices(this UnityContainer container)
 		{
 			container.RegisterType<IMapService, MapService>(new TransientLifetimeManager());
-            container.RegisterType<ITriangulationService, TriangulationService>(new TransientLifetimeManager());
 		}
 	}
 }
