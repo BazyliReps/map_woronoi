@@ -3,9 +3,9 @@ using System.Drawing;
 
 namespace Astruk.ViewModels
 {
-	public class MapVm
+	public class RegionVm
 	{
+		public KeyMapObjectVm KeyObject { get; set; }
 		public IList<PointF> Vertices { get; set; }
-		public IEnumerable<RegionVm> Regions { get; set; }
 	}
 }

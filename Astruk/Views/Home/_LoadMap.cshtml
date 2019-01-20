@@ -1,8 +1,55 @@
 ﻿@using Unity.Interception.Utilities
 @model Astruk.ViewModels.MapVm
+@Scripts.Render("~/bundles/raphael")
 
-<svg width="100%" viewBox="@(Model.Vertices.Min(x=>x.X)-5) @(Model.Vertices.Min(x=>x.Y)-5) @Model.Vertices.Max(x=>x.X) @Model.Vertices.Max(x=>x.Y)"
-     style="padding: 1rem">
-    <polyline points="@Model.Vertices.Append(Model.Vertices.First()).Select(x=>$"{x.X},{x.Y}").JoinStrings(" ")"
-              style="fill: none; stroke: black; stroke-width: 0.5" />
-</svg>
+<div id="raphael-map"></div>
+
+<script>
+
+    var style = {
+        fill: "#ddd",
+        stroke: "#aaa",
+        "stroke-width": 0.5,
+        "stroke-linejoin": "round",
+        cursor: "pointer"
+    };
+
+    var animationSpeed = 500;
+    var hoverStyle = {
+        fill: "#A8BED5"
+    }
+
+    var map = Raphael("raphael-map", "100%", "100%");
+    map.setViewBox(@(Model.Vertices.Min(x => x.X)-2),
+        @(Model.Vertices.Min(x => x.Y)-2),
+        @Model.Vertices.Max(x => x.X),
+        @Model.Vertices.Max(x => x.Y));
+
+
+    //Whole map, not really needed
+    //map.path("m @Model.Vertices.Select(x => $"{x.X},{x.Y}").JoinStrings(" L ") z");
+
+    var regions = {};
+
+    @foreach (var region in Model.Regions)
+    {
+        @:regions["@region.KeyObject.Name"] = map.path("m @region.Vertices.Select(x => $"{x.X},{x.Y}").JoinStrings(" L ") z");
+        @:map.circle(@region.KeyObject.X, @region.KeyObject.Y, 1).attr({fill: "#ff0000", stroke: "#ff0000"});
+    }
+
+    for(var regionName in regions) {
+        (function (region) {
+            region.attr(style);
+
+            region[0].addEventListener("mouseover", function() {
+                region.animate(hoverStyle, animationSpeed);
+            }, true);
+
+            region[0].addEventListener("mouseout", function() {
+                region.animate(style, animationSpeed);
+            }, true);
+
+        })(regions[regionName]);
+    }
+
+</script>

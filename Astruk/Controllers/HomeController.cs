@@ -32,7 +32,13 @@ namespace Astruk.Controllers
 
 			var model = new MapVm
 			{
-				Vertices = map.Vertices.Select(VertexToPointF).ToList() // Select in LINQ to Objects preserves order. Return of IEnumerable is because of other LINQs
+				Vertices = map.Vertices.Select(VertexToPointF)
+					.ToList(), // Select in LINQ to Objects preserves order. Return of IEnumerable is because of other LINQs
+				Regions = map.Regions.Select(x => new RegionVm
+				{
+					Vertices = x.Vertices.Select(VertexToPointF).ToList(),
+					KeyObject = new KeyMapObjectVm {Name = x.KeyObject.Name, X = x.KeyObject.X, Y = x.KeyObject.Y}
+				})
 			};
 
 			return PartialView(model);
