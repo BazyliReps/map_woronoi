@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Astruk.Services.Helpers
 {
-    class CoordsConstaints
+    class CoordsConstraints
     {
 
 
-        public CoordsConstaints(IList<Vertex> Vertices)
+        public CoordsConstraints(IList<Vertex> Vertices)
         {
             this.XMin = double.MaxValue;
             this.XMax = -double.MaxValue;
@@ -31,6 +31,13 @@ namespace Astruk.Services.Helpers
                     YMin = vertex.Y;
                 }
             }
+        }
+        public CoordsConstraints(double XMin, double XMax, double YMin, double YMax) 
+        {
+            this.XMin = XMin;
+            this.XMax = XMax;
+            this.YMin = YMin;
+            this.YMax = YMax;
         }
 
         public double XMin { get; }

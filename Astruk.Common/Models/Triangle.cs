@@ -9,21 +9,33 @@ namespace Astruk.Common.Models
     public class Triangle
     {
         public Triangle[] triangleNeighbours;
-        public Point[] points;
-        public Point circumcenter;
+        public DeluanVertex[] points;
+        public Vector circumcenter;
         public double radius;
-        public Edge[] exoEdges;
+        public BorderIntersectionEdge[] borderIntersections;
+        public bool isObtuse = false;
+        public List<Vector> intersections = new List<Vector>();
 
-        public Triangle(Point p1, Point p2, Point p3)
+        private readonly double[] angles;
+
+        public Triangle(DeluanVertex p1, DeluanVertex p2, DeluanVertex p3)
         {
             this.triangleNeighbours = new Triangle[3];
-            this.points = new Point[3];
-            this.exoEdges = new Edge[3];
+            this.points = new DeluanVertex[3];
+            this.angles = new double[3];
+            this.borderIntersections = new BorderIntersectionEdge[3];
             points[0] = p1;
             points[1] = p2;
             points[2] = p3;
 
             FindCircumcenter();
+
+            for (int i = 0; i < 3; i++) {
+                angles[i] = CalculateAngleOnVertex(i);
+                if(angles[i] > 90) {
+                    isObtuse = true;
+                }
+            }
         }
 
         public void AddNeighbour(Triangle neighbour)
@@ -46,7 +58,12 @@ namespace Astruk.Common.Models
             return index - 1 < 0 ? 2 : index - 1;
         }
 
-        public double CalculateAngleOnVertex(int startVertexIndex)
+        public double GetAngleOnVertex(int vertexId)
+        {
+            return angles[vertexId];
+        }
+
+        private double CalculateAngleOnVertex(int startVertexIndex)
         {
 
             int end1, end2;
@@ -80,15 +97,15 @@ namespace Astruk.Common.Models
              E = A * (p1.X + p2.X) + B * (p1.Y + p2.Y),
              F = C * (p1.X + p3.X) + D * (p1.Y + p3.Y),
              G = 2 * (A * (p3.Y - p2.Y) - B * (p3.X - p2.X));
-            var x = (D * E - B * F) / G;
-            var y = (A * F - C * E) / G;
+            double x = (D * E - B * F) / G;
+            double y = (A * F - C * E) / G;
 
-            this.circumcenter = new Point(x, y);
-            this.radius = Math.Sqrt((circumcenter.X - p1.X) * (circumcenter.X - p1.X) + ((circumcenter.Y - p1.Y) * (circumcenter.Y - p1.Y)));
+            this.circumcenter = new Vector(x, y);
+            //radius = Math.Sqrt(((circumcenter.X - p1.X) * (circumcenter.X - p1.X)) + ((circumcenter.Y - p1.Y) * (circumcenter.Y - p1.Y)));
 
         }
 
-        public bool ContainsPoint(Point p)
+        public bool ContainsPoint(DeluanVertex p)
         {
             return points.Contains(p);
         }

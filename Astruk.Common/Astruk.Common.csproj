@@ -40,9 +40,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\BorderIntersectionEdge.cs" />
     <Compile Include="Interfaces\IMapService.cs" />
     <Compile Include="Models\Edge.cs" />
-    <Compile Include="Models\Point.cs" />
+    <Compile Include="Models\DeluanVertex.cs" />
+    <Compile Include="Models\Vector.cs" />
     <Compile Include="Models\Region.cs" />
     <Compile Include="Models\Map.cs" />
     <Compile Include="Models\KeyMapObject.cs" />

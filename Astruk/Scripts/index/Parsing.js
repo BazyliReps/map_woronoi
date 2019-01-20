@@ -46,7 +46,10 @@ function readVertex(line) {
     const [id, x, y] = line.split(' ');
     let trimmedId = cutDot(id);
     if (isNumber(trimmedId)) {
-        return new Vertex(trimmedId, x * 1, y * 1);
+        //popraw zeby nie id
+        let v = new Vertex(x * 1, y * 1);
+        v.Id = id - 1;
+        return v;
     }
 
 }

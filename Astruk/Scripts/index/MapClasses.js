@@ -1,9 +1,10 @@
 ﻿class Vertex {
-    constructor(id, x, y) {
-        this.Id = id;
+    constructor(x, y) {
         this.X = x;
         this.Y = y;
+        this.Id = -1;
     }
+
 }
 
 class KeyMapObject {

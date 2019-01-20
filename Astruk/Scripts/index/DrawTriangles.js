@@ -27,8 +27,23 @@ function DrawVertices(vertices, context) {
     context.beginPath();
     let i = 0;
     for (; i < vertices.length; i++) {
-        //g.arc(verti ces[i].X, vertices[i].Y, 2, 0, 2 * Math.PI);
-        //g.fill();
+        context.fillText(vertices[i].Id, vertices[i].X, vertices[i].Y);
+        context.moveTo(vertices[i].X, vertices[i].Y);
+        if (i == vertices.length - 1) {
+            context.lineTo(vertices[0].X, vertices[0].Y);
+        } else {
+            context.lineTo(vertices[i + 1].X, vertices[i + 1].Y);
+        }
+    }
+    context.stroke();
+}
+
+function DrawVoronoi(vertices, context) {
+    context.strokeStyle = "blue";
+    context.beginPath();
+    let i = 0;
+    for (; i < vertices.length; i++) {
+        context.fillText(vertices[i].Id, vertices[i].X, vertices[i].Y);
         context.moveTo(vertices[i].X, vertices[i].Y);
         if (i == vertices.length - 1) {
             context.lineTo(vertices[0].X, vertices[0].Y);
@@ -71,12 +86,36 @@ function DrawTriangle(triangle, context) {
     context.closePath();
     context.stroke();
 
+    if (triangle.intersections.length > 0) {
+        let j = 0;
+        for (; j < triangle.intersections.length; j++) {
+
+            context.strokeStyle = "green";
+            context.beginPath();
+            context.arc(triangle.intersections[j].X, triangle.intersections[j].Y, 4, 0, 2 * Math.PI);
+            context.closePath();
+            context.stroke();
+        }
+    }
+
+
     context.strokeStyle = "black";
 
-    context.beginPath();
     for (; i < 3; i++) {
         //g.arc(triangle.points[i].X, triangle.points[i].Y, 4, 0, 2 * Math.PI);
-        //context.fillText(/*triangle.points[i].Id*/i, triangle.points[i].X, triangle.points[i].Y);
+        context.fillText(triangle.points[i].Id, triangle.points[i].X, triangle.points[i].Y);
+
+
+        if (triangle.borderIntersections[i] != null) {
+            context.beginPath();
+            //context.arc(triangle.borderIntersections[i].X, triangle.borderIntersections[i].Y, 4, 0, 2 * Math.PI);
+            context.moveTo(triangle.borderIntersections[i].Start.X, triangle.borderIntersections[i].Start.Y);
+            context.lineTo(triangle.borderIntersections[i].End.X, triangle.borderIntersections[i].End.Y);
+            context.closePath();
+            context.stroke();
+        }
+
+        context.beginPath();
         let nextX, nextY;
         context.moveTo(triangle.points[i].X, triangle.points[i].Y);
 
@@ -84,9 +123,9 @@ function DrawTriangle(triangle, context) {
         nextY = i == 2 ? triangle.points[0].Y : triangle.points[i + 1].Y;
 
         context.lineTo(nextX, nextY);
-        context.fillText(i, (triangle.points[i].X + nextX) / 2, (triangle.points[i].Y + nextY) / 2);
+        context.closePath();
+        context.stroke();
+        //context.fillText(i, (triangle.points[i].X + nextX) / 2, (triangle.points[i].Y + nextY) / 2);
     }
-    context.closePath();
-    context.stroke();
 
 }

@@ -45,7 +45,7 @@ function sendAllData(allData) {
             DrawVertices(allData.Vertices, context);
             let i = 0;
             for (; i < returnData.points.length; i++) {
-                DrawVertices(returnData.points[i].voronoiVertices, context);
+                DrawVoronoi(returnData.points[i].voronoiVertices, context);
             }
             DrawKeyPoints(returnData.triangles, context);
         }

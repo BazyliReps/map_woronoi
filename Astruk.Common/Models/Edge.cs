@@ -4,11 +4,11 @@ namespace Astruk.Common.Models
 {
     public class Edge
     {
-        public Point start;
-        public Point end;
+        public DeluanVertex start;
+        public DeluanVertex end;
         public Triangle baseTriangle;
 
-        public Edge(Point start, Point end)
+        public Edge(DeluanVertex start, DeluanVertex end)
         {
             this.start = start;
             this.end = end;

@@ -9,21 +9,21 @@ namespace Astruk.Services.Helpers
 {
     class Triangulator
     {
-        public TestMap Triangulate(IEnumerable<Point> KeyObjects, IList<Vertex> Vertices)
+        public TestMap Triangulate(IEnumerable<DeluanVertex> KeyObjects, IList<Vertex> Vertices)
         {
             var Hull = new LinkedList<Edge>();
             var Triangles = new List<Triangle>(100);
             var Points = KeyObjects.OrderBy(v => v.X).ToList();
             bool madeTriangle = false;
 
-            CoordsConstaints Constraints = new CoordsConstaints(Vertices);
+            
 
             InitPoints(Points);
 
             InitializeHull(Points, Hull, Triangles);
 
             for (int i = 3; i < Points.Count; i++) {
-                Point currentPoint = Points[i];
+                DeluanVertex currentPoint = Points[i];
                 LinkedListNode<Edge> head = Hull.First;
                 while (head != null) {
                     madeTriangle = false;
@@ -74,80 +74,14 @@ namespace Astruk.Services.Helpers
             }
 
 
-            InitVoronoiCreation(Triangles);
-            GetVoronoiVertices(Points, Constraints);
+            
 
-            foreach (var t in Triangles) {
-                t.triangleNeighbours = null;
-            }
-            foreach (var p in Points) {
-                p.adjacentTriangles = null;
-                p.exoTriangles = null;
-            }
+            
 
             return new TestMap(Triangles, Points);
         }
 
-        private void InitVoronoiCreation(List<Triangle> allTriangles)
-        {
-            foreach (var triangle in allTriangles) {
-                for (int i = 0; i < 3; i++) {
-                    Point vertex = triangle.points[i];
-                    var prevIndex = i == 0 ? 2 : i - 1;
-                    if (triangle.triangleNeighbours[i] == null || triangle.triangleNeighbours[prevIndex] == null) {
-                        vertex.exoTriangles.Add(triangle);
-                    } else {
-                        vertex.adjacentTriangles.Add(triangle);
-                    }
-                }
-            }
-        }
-
-
-        private void GetVoronoiVertices(List<Point> allPoints, CoordsConstaints constraints)
-        {
-            foreach (var deluanVertex in allPoints) {
-                if (deluanVertex.exoTriangles.Count == 0) {
-
-                    var firstTriangle = deluanVertex.adjacentTriangles.First();
-                    var currentTriangle = firstTriangle;
-                    var numberOfTriangles = deluanVertex.adjacentTriangles.Count;
-                    for (int j = 0; j < numberOfTriangles; j++) {
-                        deluanVertex.voronoiVertices.Add(currentTriangle.circumcenter);
-                        deluanVertex.adjacentTriangles.Remove(currentTriangle);
-                        for (int i = 0; i < 3; i++) {
-                            var nextTriangle = currentTriangle.triangleNeighbours[i];
-                            if (nextTriangle != null && deluanVertex.adjacentTriangles.Contains(nextTriangle)) {
-                                currentTriangle = nextTriangle;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-            }
-        }
-
-        private void MakeExoLines(Triangle triangle)
-        {
-            for (int i = 0; i < 3; i++) {
-                if (triangle.triangleNeighbours[i] == null) {
-                    Edge exoEdge;
-                    switch (i) {
-                        case 0:
-                            exoEdge = new Edge(triangle.points[0], triangle.points[1]);
-                            break;
-                        case 1:
-                            exoEdge = new Edge(triangle.points[1], triangle.points[2]);
-                            break;
-                        case 2:
-                            exoEdge = new Edge(triangle.points[2], triangle.points[0]);
-                            break;
-                    }
-                }
-            }
-
-        }
+        
 
         private void LegalizeEdges(List<Triangle> triangles, Triangle legalisedTriangle, LinkedList<Edge> hull)
         {
@@ -172,8 +106,8 @@ namespace Astruk.Services.Helpers
                         int currentTriangleVertexIndex = currentTriangle.GetVertexOpposingGivenTriangle(adjacentTriangle);
                         int adjacentTriangleVertexIndex = adjacentTriangle.GetVertexOpposingGivenTriangle(currentTriangle);
 
-                        double innerAngle = (currentTriangle.CalculateAngleOnVertex(currentTriangleVertexIndex)
-                            + adjacentTriangle.CalculateAngleOnVertex(adjacentTriangleVertexIndex));
+                        double innerAngle = (currentTriangle.GetAngleOnVertex(currentTriangleVertexIndex)
+                            + adjacentTriangle.GetAngleOnVertex(adjacentTriangleVertexIndex));
 
                         if (innerAngle > 180) {
                             //swap edges
@@ -223,18 +157,18 @@ namespace Astruk.Services.Helpers
             }
         }
 
-        private List<Triangle> SwapEdgesAndFixNeighborRef(Triangle swappedTriangle, Triangle adjacentTriangle, Point swappedVertex, Point adjacentVertex)
+        private List<Triangle> SwapEdgesAndFixNeighborRef(Triangle swappedTriangle, Triangle adjacentTriangle, DeluanVertex swappedVertex, DeluanVertex adjacentVertex)
         {
             var newTriangles = new List<Triangle>(2);
 
             var commonVertices = swappedTriangle.points.Where((p) => p != swappedVertex).ToList();
-            var firstTriangleVertices = new List<Point> {
+            var firstTriangleVertices = new List<DeluanVertex> {
                 swappedVertex,
                 adjacentVertex,
                 commonVertices[0]
             };
 
-            var secondTriangleVertices = new List<Point> {
+            var secondTriangleVertices = new List<DeluanVertex> {
                 swappedVertex,
                 adjacentVertex,
                 commonVertices[1]
@@ -262,7 +196,7 @@ namespace Astruk.Services.Helpers
             return newTriangles;
         }
 
-        private Triangle MakeTriangleFromPoints(List<Point> Points)
+        private Triangle MakeTriangleFromPoints(List<DeluanVertex> Points)
         {
             var p0 = Points[0];
             var p1 = Points[1];
@@ -299,7 +233,7 @@ namespace Astruk.Services.Helpers
 
         }
 
-        private int GetNeighbourIndexByVertex(Point vertex, Point[] vertices)
+        private int GetNeighbourIndexByVertex(DeluanVertex vertex, DeluanVertex[] vertices)
         {
             var index = Array.IndexOf(vertices, vertex);
             return index == 2 ? 0 : index + 1;
@@ -313,7 +247,7 @@ namespace Astruk.Services.Helpers
                 return t1.points.Intersect(t2.points).Count() == 2;
         }
 
-        private void InitPoints(List<Point> p)
+        private void InitPoints(List<DeluanVertex> p)
         {
             int index = 0;
             foreach (var point in p) {
@@ -326,12 +260,12 @@ namespace Astruk.Services.Helpers
             return (e1.start == e2.end && e1.end == e2.start);
         }
 
-        private bool IsOnRight(Edge edge, Point checkedPoint)
+        private bool IsOnRight(Edge edge, DeluanVertex checkedPoint)
         {
             return (checkedPoint.X - edge.start.X) * (edge.end.Y - edge.start.Y) - (edge.end.X - edge.start.X) * (checkedPoint.Y - edge.start.Y) < 0;
         }
 
-        private void InitializeHull(List<Point> Points, LinkedList<Edge> Hull, List<Triangle> Triangles)
+        private void InitializeHull(List<DeluanVertex> Points, LinkedList<Edge> Hull, List<Triangle> Triangles)
         {
 
             Triangle firstTriangle = MakeTriangleFromPoints(Points);

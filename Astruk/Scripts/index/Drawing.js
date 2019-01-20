@@ -23,6 +23,7 @@ function drawBorders(vertices, g) {
     for (; i < vertices.length; i++) {
         g.arc(vertices[i].X, vertices[i].Y, 2, 0, 2 * Math.PI);
         g.fill();
+        
         g.moveTo(vertices[i].X, vertices[i].Y);
         if (i == vertices.length - 1) {
             g.lineTo(vertices[0].X, vertices[0].Y);

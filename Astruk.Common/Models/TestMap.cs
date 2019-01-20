@@ -9,8 +9,8 @@ namespace Astruk.Common.Models
     public class TestMap
     {
         public List<Triangle> triangles;
-        public List<Point> points;
-        public TestMap(List<Triangle> triangles, List<Point> points)
+        public List<DeluanVertex> points;
+        public TestMap(List<Triangle> triangles, List<DeluanVertex> points)
         {
             this.triangles = triangles;
             this.points = points;

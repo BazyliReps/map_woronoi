@@ -28,22 +28,26 @@ namespace Astruk.Controllers
         {
 
 
-            var points = new List<Point>();
+            var points = new List<DeluanVertex>();
             var vertices = new List<Vertex>();
             var keyObjects = new List<KeyMapObject>();
             var types = new List<MapObjectType>();
             var objects = new List<MapObject>();
 
             if (Vertices != null) {
+                int i = 0;
                 foreach (var vertex in Vertices) {
-                    vertices.Add(new Vertex(vertex.Id, vertex.X, vertex.Y));
+                    var v = new Vertex(vertex.X, vertex.Y) {
+                        Id = i++
+                    };
+                    vertices.Add(v);
                 }
             }
 
             if (KeyObjects != null) {
 
                 foreach (var keyObject in KeyObjects) {
-                    var newPoint = new Point(keyObject.X, keyObject.Y);
+                    var newPoint = new DeluanVertex(keyObject.X, keyObject.Y);
                     if (!points.Contains(newPoint)) {
                         points.Add(newPoint);
                     }
@@ -63,6 +67,7 @@ namespace Astruk.Controllers
             }
 
             var testMap = MapService.GenerateMap(vertices, keyObjects, (IEnumerable<MapObjectType>)types, objects);
+
 
 
             return Json(testMap);
