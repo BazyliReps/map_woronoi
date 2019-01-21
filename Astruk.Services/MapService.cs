@@ -41,8 +41,8 @@ namespace Astruk.Services
                 p.adjacentTriangles = null;
                 p.exoTriangles = null;
             }
-            data.Vertices = null;
-            data.triangles = null;
+            //data.Vertices = null;
+            //data.triangles = null;
 
             return data;
 
@@ -92,27 +92,17 @@ namespace Astruk.Services
             foreach (var deluanVertex in allPoints) {
 
                 var shouldCheckEdges = false;
-                //var visitedList = new List<Triangle>();
 
-                //lecim po kazdym wierzcholku z listy
                 if (deluanVertex.exoTriangles.Count == 0) {
-                    // dla wierzcholkow wewnetrznych
                     var firstTriangle = deluanVertex.adjacentTriangles.First();
                     var currentTriangle = firstTriangle;
                     var numberOfTriangles = deluanVertex.adjacentTriangles.Count;
 
-
                     for (int j = 0; j < numberOfTriangles; j++) {
-                        //lecimy po wszystkich trojkatach ktore maja ten wierzcholek
-
-                        //sprawdz czy circum w srodku trojkata
                         if (currentTriangle.isObtuse) {
-                            //poza trojkatem, sprawdz, czy w granicach
                             shouldCheckEdges = true;
                         }
                         deluanVertex.voronoiVertices.Add(currentTriangle.circumcenter);
-                        //visitedList.Add(currentTriangle);
-
                         for (int i = 0; i < 3; i++) {
                             var nextTriangle = currentTriangle.triangleNeighbours[i];
                             if (nextTriangle != null && i == Array.IndexOf(currentTriangle.points, deluanVertex)) {
@@ -127,7 +117,6 @@ namespace Astruk.Services
                             CheckEdges(deluanVertex, vertices);
                         }
                     }
-
 
                 } else if (deluanVertex.exoTriangles.Count == 1) {
 
@@ -183,7 +172,7 @@ namespace Astruk.Services
                         deluanVertex.voronoiVertices.Add(intersection2);
                         exoEdgesFound++;
                     }
-
+                    /*
                     if (exoEdgesFound == 2) {
                         FixBorders(deluanVertex, vertices, intersection1, intersection2, firstIntersectedEdgeId, secondIntersectedEdgeId, deluanVertex.voronoiVertices[1]
                             , deluanVertex.voronoiVertices[deluanVertex.voronoiVertices.Count - 2]);
@@ -193,7 +182,7 @@ namespace Astruk.Services
                             CheckEdges(deluanVertex, vertices);
                         }
                     }
-
+                    */
 
 
 
@@ -243,85 +232,63 @@ namespace Astruk.Services
             return false;
         }
 
+
         private void CheckEdges(DeluanVertex point, IList<Vertex> vertices)
         {
             Vertex v1 = null;
             Vertex v2 = null;
             Vector currentVoronoiVertex, nextVoronoiVertex;
             Vector intersection1 = null;
-            Vector intersection2 = null;
-            int edge1 = 0, edge2 = 0;
-            Vector firstInnerVector = null, secondInnerVector = null;
             int intersectionsFound = 0;
 
-            List<Vector> toRemove = new List<Vector>(2);
+            var toRemove = new List<Vector>();
+            var foundIntersections = new List<Vector>();
+            var innerVoronoiVertices = new List<Vector>();
+            var idsOfEdges = new List<int>();
 
 
-            for (int j = 0; j < vertices.Count && intersectionsFound < 2; j++) {
+            for (int j = 0; j < vertices.Count; j++) {
                 v1 = vertices[j];
                 var nextJ = j == vertices.Count - 1 ? 0 : j + 1;
                 v2 = vertices[nextJ];
 
-                for (int i = 0; i < point.voronoiVertices.Count && intersectionsFound < 2; i++) {
+                for (int i = 0; i < point.voronoiVertices.Count; i++) {
                     currentVoronoiVertex = point.voronoiVertices[i];
                     var nextI = i == point.voronoiVertices.Count - 1 ? 0 : i + 1;
                     nextVoronoiVertex = point.voronoiVertices[nextI];
                     bool isFirstInside;
-
-
-
-                    if (intersectionsFound == 0) {
-                        if (CheckIfLineSegmentsIntersects(currentVoronoiVertex, nextVoronoiVertex, v1, v2, ref intersection1, out isFirstInside)) {
-                            intersectionsFound++;
-                            edge1 = j;
-                            if (isFirstInside) {
-                                firstInnerVector = currentVoronoiVertex;
-                                toRemove.Add(nextVoronoiVertex);
-                            } else {
-                                firstInnerVector = nextVoronoiVertex;
-                                toRemove.Add(currentVoronoiVertex);
-                            }
-
-
-                            continue;
-
+                    if (CheckIfLineSegmentsIntersects(currentVoronoiVertex, nextVoronoiVertex, v1, v2, ref intersection1, out isFirstInside)) {
+                        intersectionsFound++;
+                        idsOfEdges.Add(j);
+                        if (isFirstInside) {
+                            innerVoronoiVertices.Add(currentVoronoiVertex);
+                            toRemove.Add(nextVoronoiVertex);
+                        } else {
+                            innerVoronoiVertices.Add(nextVoronoiVertex);
+                            toRemove.Add(currentVoronoiVertex);
                         }
-                    } else if (intersectionsFound == 1) {
-                        if (CheckIfLineSegmentsIntersects(currentVoronoiVertex, nextVoronoiVertex, v1, v2, ref intersection2, out isFirstInside)) {
-                            intersectionsFound++;
-                            edge2 = j;
-                            if (isFirstInside) {
-                                secondInnerVector = currentVoronoiVertex;
-                                toRemove.Add(nextVoronoiVertex);
-                            } else {
-                                secondInnerVector = nextVoronoiVertex;
-                                toRemove.Add(currentVoronoiVertex);
-                            }
-
-                            break;
-
-
-                        }
+                        foundIntersections.Add(new Vector(intersection1));
+                    } 
+                    /*else if (!(intersectionsFound % 2 == 0)) {
+                        toRemove.Add(currentVoronoiVertex);
                     }
+                    */
                 }
             }
 
-            if (intersectionsFound == 2) {
+            var kondon = 1;
 
-                foreach (var v in toRemove) {
-                    point.voronoiVertices.Remove(v);
-                }
-
-
-
-                FixBorders(point, vertices, intersection1, intersection2, edge1, edge2, firstInnerVector, secondInnerVector);
-
-                //test only
-                point.adjacentTriangles[0].intersections.Add(new Vector(intersection1.X, intersection1.Y));
-                point.adjacentTriangles[0].intersections.Add(new Vector(intersection2.X, intersection2.Y));
-
+            foreach (var v in toRemove) {
+                point.voronoiVertices.Remove(v);
             }
 
+            if (foundIntersections.Count > 0) {
+
+                for (int i = 0; i < foundIntersections.Count - 1; i+=2) {
+                    FixBorders(point, vertices, foundIntersections[i], foundIntersections[i + 1], idsOfEdges[i], idsOfEdges[i + 1], innerVoronoiVertices[i], innerVoronoiVertices[i + 1]);
+                }
+            }
+            
         }
 
         private bool FixBorders(DeluanVertex point, IList<Vertex> vertices, Vector intersection1, Vector intersection2, int edgeId1, int edgeId2, Vector firstInnerVoronoiVertex, Vector secondInnerVoronoiVertex)
@@ -348,11 +315,15 @@ namespace Astruk.Services
                 v1 = secondInnerVoronoiVertexId;
                 v2 = firstInnerVoronoiVertexId;
             }
+            try {
 
             firstCircumInside = point.voronoiVertices[v1];
             lastCircumInside = point.voronoiVertices[v2];
+            } catch(ArgumentOutOfRangeException) {
+                return false;
+            }
 
-            
+
 
             int prevIndex = v1 - 1 < 0 ? point.voronoiVertices.Count - 1 : v1 - 1;
             nextCircumInside = point.voronoiVertices[prevIndex];
@@ -385,7 +356,9 @@ namespace Astruk.Services
                 } while (nextIndex != edge1);
                 newList.Add(i1);
                 Vector currentVertex = point.voronoiVertices[v1];
+                Vector nextVertex;
                 nextIndex = v1;
+
                 newList.Add(currentVertex);
                 while (currentVertex != lastCircumInside) {
                     nextIndex = nextIndex + 1 >= point.voronoiVertices.Count - 1 ? 0 : nextIndex + 1;
@@ -444,7 +417,7 @@ namespace Astruk.Services
 
         private bool CheckIfLineSegmentsIntersects(Vector start, Vector end, Vector edgeStart, Vector edgeEnd, ref Vector intersection, out bool firstOnRight)
         {
-            double nullOffset = 0.000001;
+            double nullOffset = 0.00000001;
             var r = end - start;
             var s = edgeEnd - edgeStart;
             var product = r * s;
@@ -472,7 +445,7 @@ namespace Astruk.Services
 
         private bool CheckIfLineSegmentsIntersects(Vector p, Vector pr, Vector q, Vector qs)
         {
-            double nullOffset = 0.000001;
+            double nullOffset = 0.00000001;
             var r = pr - p;
             var s = qs - q;
             var product = r * s;

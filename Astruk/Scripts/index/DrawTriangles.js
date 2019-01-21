@@ -74,40 +74,20 @@ function DrawTriangle(triangle, context) {
     context.font = "17px Arial";
 
     context.strokeStyle = "blue";
-    /*
-    g.beginPath();
-    g.arc(triangle.circumcenter.X, triangle.circumcenter.Y, triangle.radius, 0, 2 * Math.PI);
-    g.closePath();
-    g.stroke();
-    */
     context.beginPath();
     context.arc(triangle.circumcenter.X, triangle.circumcenter.Y, 4, 0, 2 * Math.PI);
     context.closePath();
     context.stroke();
 
-    if (triangle.intersections.length > 0) {
-        let j = 0;
-        for (; j < triangle.intersections.length; j++) {
-
-            context.strokeStyle = "green";
-            context.beginPath();
-            context.arc(triangle.intersections[j].X, triangle.intersections[j].Y, 4, 0, 2 * Math.PI);
-            context.closePath();
-            context.stroke();
-        }
-    }
-
 
     context.strokeStyle = "black";
 
     for (; i < 3; i++) {
-        //g.arc(triangle.points[i].X, triangle.points[i].Y, 4, 0, 2 * Math.PI);
         context.fillText(triangle.points[i].Id, triangle.points[i].X, triangle.points[i].Y);
 
-
+        /*
         if (triangle.borderIntersections[i] != null) {
             context.beginPath();
-            //context.arc(triangle.borderIntersections[i].X, triangle.borderIntersections[i].Y, 4, 0, 2 * Math.PI);
             context.moveTo(triangle.borderIntersections[i].Start.X, triangle.borderIntersections[i].Start.Y);
             context.lineTo(triangle.borderIntersections[i].End.X, triangle.borderIntersections[i].End.Y);
             context.closePath();
@@ -124,7 +104,7 @@ function DrawTriangle(triangle, context) {
         context.lineTo(nextX, nextY);
         context.closePath();
         context.stroke();
-        //context.fillText(i, (triangle.points[i].X + nextX) / 2, (triangle.points[i].Y + nextY) / 2);
+        */
     }
 
 }
