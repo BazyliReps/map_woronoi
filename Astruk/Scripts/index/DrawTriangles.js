@@ -43,7 +43,6 @@ function DrawVoronoi(vertices, context) {
     context.beginPath();
     let i = 0;
     for (; i < vertices.length; i++) {
-        context.fillText(vertices[i].Id, vertices[i].X, vertices[i].Y);
         context.moveTo(vertices[i].X, vertices[i].Y);
         if (i == vertices.length - 1) {
             context.lineTo(vertices[0].X, vertices[0].Y);
@@ -114,7 +113,7 @@ function DrawTriangle(triangle, context) {
             context.closePath();
             context.stroke();
         }
-
+        
         context.beginPath();
         let nextX, nextY;
         context.moveTo(triangle.points[i].X, triangle.points[i].Y);

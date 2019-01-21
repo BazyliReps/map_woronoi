@@ -11,6 +11,7 @@ namespace Astruk.Services
     {
         public TestMap GenerateMap(IList<Vertex> Vertices, IEnumerable<KeyMapObject> KeyObjects, IEnumerable<MapObjectType> Types, IEnumerable<MapObject> Objects)
         {
+            SetBordersClockwise(ref Vertices);
             Triangulator TriangulationMaker = new Triangulator();
             List<DeluanVertex> Points = new List<DeluanVertex>();
             int i = 0;
@@ -21,24 +22,13 @@ namespace Astruk.Services
                 Points.Add(v);
             }
 
-            TestMap data = TriangulationMaker.Triangulate(Points, Vertices);
+            TestMap data = TriangulationMaker.Triangulate(Points);
 
+            data.Vertices = Vertices;
             CoordsConstraints MapConstraints = new CoordsConstraints(Vertices);
-            //var BorderEdges = MakeBorderEdges(Vertices);
 
             InitVoronoiCreation(data.triangles);
             GetVoronoiVertices(Points, Vertices);
-
-
-            foreach (var p in Points) {
-                foreach (var t in p.exoTriangles) {
-                    if (t != null) {
-                        if (t.borderIntersections.Count() == 0) {
-                            throw new Exception("hwdp");
-                        }
-                    }
-                }
-            }
 
             foreach (var t in data.triangles) {
                 t.triangleNeighbours = null;
@@ -52,6 +42,27 @@ namespace Astruk.Services
 
         }
 
+        private void SetBordersClockwise(ref IList<Vertex> Vertices)
+        {
+            double det = 0;
+            for (int i = 0; i < Vertices.Count - 1; i++) {
+                Vertex v1 = Vertices[i];
+                Vertex v2 = Vertices[i + 1];
+                det += (v2.X - v1.X) * (v2.Y + v1.Y);
+            }
+
+            if (det > 0) {
+                List<Vertex> newList = new List<Vertex>();
+                for (int i = 0; i < Vertices.Count; i++) {
+                    newList.Add(Vertices[Vertices.Count - i - 1]);
+                    newList[i].Id = i;
+                }
+                Vertices = newList;
+            }
+        }
+
+
+
         private void InitVoronoiCreation(List<Triangle> allTriangles)
         {
             foreach (var triangle in allTriangles) {
@@ -59,6 +70,7 @@ namespace Astruk.Services
                     DeluanVertex vertex = triangle.points[i];
                     var prevIndex = i == 0 ? 2 : i - 1;
                     if (triangle.triangleNeighbours[i] == null || triangle.triangleNeighbours[prevIndex] == null) {
+                        vertex.isExo = true;
                         vertex.exoTriangles.Add(triangle);
                     }
                     //tu sie jebac moze
@@ -74,7 +86,7 @@ namespace Astruk.Services
             foreach (var deluanVertex in allPoints) {
 
                 var shouldCheckEdges = false;
-                var visitedList = new List<Triangle>();
+                //var visitedList = new List<Triangle>();
 
                 //lecim po kazdym wierzcholku z listy
                 if (deluanVertex.exoTriangles.Count == 0) {
@@ -93,17 +105,22 @@ namespace Astruk.Services
                             shouldCheckEdges = true;
                         }
                         deluanVertex.voronoiVertices.Add(currentTriangle.circumcenter);
-                        visitedList.Add(currentTriangle);
+                        //visitedList.Add(currentTriangle);
 
                         for (int i = 0; i < 3; i++) {
                             var nextTriangle = currentTriangle.triangleNeighbours[i];
-                            if (nextTriangle != null && !visitedList.Contains(nextTriangle) && deluanVertex.adjacentTriangles.Contains(nextTriangle) && i == Array.IndexOf(currentTriangle.points, deluanVertex)) {
+                            if (nextTriangle != null/* && !visitedList.Contains(nextTriangle) && deluanVertex.adjacentTriangles.Contains(nextTriangle)*/ && i == Array.IndexOf(currentTriangle.points, deluanVertex)) {
                                 currentTriangle = nextTriangle;
                                 break;
                             }
                         }
                     }
-                    //popraw ja kcircum za konturem
+                    //popraw jak circum za konturem
+                    /*
+                    if (shouldCheckEdges) {
+                        CheckEdges(deluanVertex, vertices);
+                    }
+                    */
                     if (shouldCheckEdges) {
                         CheckEdges(deluanVertex, vertices);
                     }
@@ -112,34 +129,179 @@ namespace Astruk.Services
                 } else if (deluanVertex.exoTriangles.Count == 1) {
 
                 } else if (deluanVertex.exoTriangles.Count == 2) {
+
+                    int edge1 = -1
+                        , edge2 = -1,
+                        vector1 = -1,
+                        vector2 = -1;
+
+                    Vector intersection = null;
+                    int firstIntersectedEdgeId = -1;
+                    int secondIntersectedEdgeId = -1;
+                    Triangle exoTriangle = deluanVertex.exoTriangles[0];
+                    Triangle endTriangle = deluanVertex.exoTriangles[1];
+                    bool isClockwise = false;
+
+                    Vector firstCircum = null
+                        , secondCircum = null;
+
+
+                    for (int i = 0; i < 3; i++) {
+                        Triangle neighbor = exoTriangle.triangleNeighbours[i];
+                        if (neighbor != null && Array.IndexOf(exoTriangle.points, deluanVertex) == i) {
+                            isClockwise = true;
+                            break;
+                        }
+                    }
+
+                    if (!isClockwise) {
+                        exoTriangle = deluanVertex.exoTriangles[1];
+                        endTriangle = deluanVertex.exoTriangles[0];
+                    }
+
+
+                    //deluanVertex.voronoiVertices.Add(exoTriangle.circumcenter);
+                    Triangle nextTriangle,
+                        currentTriangle = exoTriangle;
+                    //sprawdz, czy pierwsza krawedz nie przecina granic
+
+
+                    int nextTriangleIndex = Array.IndexOf(exoTriangle.points, deluanVertex);
+                    int nullNeighbourIndex = nextTriangleIndex - 1;
+                    nullNeighbourIndex = nullNeighbourIndex < 0 ? 2 : nullNeighbourIndex;
+
+                    nextTriangle = exoTriangle.triangleNeighbours[nextTriangleIndex];
+
+
+                    if (MakeExoEdge(exoTriangle, vertices, nullNeighbourIndex, ref intersection, ref firstIntersectedEdgeId)) {
+                        deluanVertex.voronoiVertices.Add(intersection);
+                        deluanVertex.voronoiVertices.Add(exoTriangle.circumcenter);
+                        firstCircum = exoTriangle.circumcenter;
+
+
+
+                    } else {
+                        //circum za granica
+                        for (int i = 0; i < vertices.Count; i++) {
+                            var startBorderVertex = vertices[i];
+                            var endBorderVertex = i == vertices.Count - 1 ? vertices[0] : vertices[i + 1];
+                            if (CheckIfLineSegmentsIntersects(exoTriangle.circumcenter, nextTriangle.circumcenter, startBorderVertex, endBorderVertex, ref intersection)) {
+                                deluanVertex.voronoiVertices.Add(intersection);
+                                firstIntersectedEdgeId = i;
+                                firstCircum = nextTriangle.circumcenter;
+                                break;
+                            }
+                        }
+                    }
+                    //currentTriangle = nextTriangle;
+
+
+                    //teraz moge dodac nastepne trojkaty
+                    //for (int j = 0; j < deluanVertex.adjacentTriangles.Count - 2; j++) {
+                    while (currentTriangle != endTriangle) {
+                        //lecimy po wszystkich trojkatach ktore maja ten wierzcholek
+
+                        //sprawdz czy circum w srodku trojkata
+                        if (currentTriangle.isObtuse) {
+                            //poza trojkatem, sprawdz, czy w granicach
+                            shouldCheckEdges = true;
+                        }
+                        //visitedList.Add(currentTriangle);
+
+                        for (int i = 0; i < 3; i++) {
+                            nextTriangle = currentTriangle.triangleNeighbours[i];
+                            if (nextTriangle != null && i == Array.IndexOf(currentTriangle.points, deluanVertex)) {
+                                currentTriangle = nextTriangle;
+                                break;
+                            }
+                        }
+                        deluanVertex.voronoiVertices.Add(currentTriangle.circumcenter);
+                    }
+
+                    int nullTriangleIndex = Array.IndexOf(currentTriangle.points, deluanVertex);
+                    int previousTriangleIndex = nullTriangleIndex == 0 ? 2 : nullTriangleIndex - 1;
+                    Triangle previousTriangle = currentTriangle.triangleNeighbours[previousTriangleIndex];
+                    intersection = null;
+                    if (MakeExoEdge(currentTriangle, vertices, nullTriangleIndex, ref intersection, ref secondIntersectedEdgeId)) {
+                        deluanVertex.voronoiVertices.Add(intersection);
+                        secondCircum = currentTriangle.circumcenter;
+                    } else {
+                        for (int i = 0; i < vertices.Count; i++) {
+                            var startBorderVertex = vertices[i];
+                            var endBorderVertex = i == vertices.Count - 1 ? vertices[0] : vertices[i + 1];
+                            if (CheckIfLineSegmentsIntersects(currentTriangle.circumcenter, previousTriangle.circumcenter, startBorderVertex, endBorderVertex, ref intersection)) {
+                                deluanVertex.voronoiVertices.Add(intersection);
+                                secondIntersectedEdgeId = i;
+                                secondCircum = previousTriangle.circumcenter;
+                                break;
+                            }
+                        }
+                    }
+                    vector1 = deluanVertex.voronoiVertices.IndexOf(firstCircum);
+                    vector2 = deluanVertex.voronoiVertices.IndexOf(secondCircum);
+
+                    FixBorders(deluanVertex, vertices, deluanVertex.voronoiVertices[0], deluanVertex.voronoiVertices[deluanVertex.voronoiVertices.Count - 1], firstIntersectedEdgeId,
+                        secondIntersectedEdgeId, vector1, vector2);
+
+
+                    /*
+                    if (shouldCheckEdges) {
+                        CheckEdges(deluanVertex, vertices);
+                    }
+                    */
                     //sa dwa trojkaty
+                    /*
                     foreach (var triangle in deluanVertex.exoTriangles) {
                         if (triangle.isObtuse) {
                             shouldCheckEdges = true;
                         }
                         MakeExoEdges(triangle, vertices);
                     }
-
-
-                    var firstTriangle = deluanVertex.exoTriangles[0];
-                    var secondTriangle = deluanVertex.exoTriangles[1];
-
-                    //sprawdz dla ktorej zenetrznej krawedzi rysujemy
-                    var vertexIndexFirstTriangle = Array.IndexOf(firstTriangle.points, deluanVertex);
-                    var previousIndex = vertexIndexFirstTriangle == 0 ? 2 : vertexIndexFirstTriangle - 1;
-                    vertexIndexFirstTriangle = firstTriangle.triangleNeighbours[vertexIndexFirstTriangle] == null ? vertexIndexFirstTriangle : previousIndex;
-
-                    //var firstBorderVertex = firstTriangle.borderIntersections[vertexIndexFirstTriangle].StartVertexOfIntersectedEdge;
-
-
-                    var vertexIndexSecondTriangle = Array.IndexOf(secondTriangle.points, deluanVertex);
-                    previousIndex = vertexIndexFirstTriangle == 0 ? 2 : vertexIndexSecondTriangle - 1;
-                    vertexIndexSecondTriangle = secondTriangle.triangleNeighbours[vertexIndexSecondTriangle] == null ? vertexIndexSecondTriangle : previousIndex;
-
+                    */
 
                 }
 
+
             }
+        }
+
+
+        private bool MakeExoEdge(Triangle triangle, IList<Vertex> borderVertices, int nullNeighborIndex, ref Vector intersection, ref int edgeId)
+        {
+            Edge exoTriangleEdge;
+            Vector normalPoint;
+            Vector normalLineAndBorderIntersection = null;
+            CoordsConstraints constraints;
+
+            switch (nullNeighborIndex) {
+                case 0:
+                    exoTriangleEdge = new Edge(triangle.points[0], triangle.points[1]);
+                    break;
+                case 1:
+                    exoTriangleEdge = new Edge(triangle.points[1], triangle.points[2]);
+                    break;
+                default:
+                    exoTriangleEdge = new Edge(triangle.points[2], triangle.points[0]);
+                    break;
+            }
+            normalPoint = new Vector((exoTriangleEdge.start.X + exoTriangleEdge.end.X) / 2, (exoTriangleEdge.start.Y + exoTriangleEdge.end.Y) / 2);
+            constraints = MakeLineConstraints(triangle, normalPoint, nullNeighborIndex);
+
+            for (int j = 0; j < borderVertices.Count; j++) {
+                Vertex startBorderVertex = borderVertices[j];
+                Vertex endBorderVertex = j == borderVertices.Count - 1 ? borderVertices[0] : borderVertices[j + 1];
+                try {
+                    normalLineAndBorderIntersection = GetIntersectionPoint(triangle.circumcenter, normalPoint, startBorderVertex, endBorderVertex);
+                } catch (ArgumentException) {
+                    continue;
+                }
+                if (IsPointInDomain(normalLineAndBorderIntersection, startBorderVertex, endBorderVertex, constraints)) {
+                    intersection = normalLineAndBorderIntersection;
+                    edgeId = j;
+                    return true;
+                }
+            }
+            return false;
         }
 
         private void CheckEdges(DeluanVertex point, IList<Vertex> vertices)
@@ -151,8 +313,9 @@ namespace Astruk.Services
             Vector intersection2 = null;
             int edge1 = 0, edge2 = 0;
             int vertex1 = 0, vertex2 = 0;
-
             int intersectionsFound = 0;
+
+
 
             for (int i = 0; i < point.voronoiVertices.Count && intersectionsFound < 2; i++) {
                 currentVertex = point.voronoiVertices[i];
@@ -168,18 +331,39 @@ namespace Astruk.Services
                             intersectionsFound++;
                             edge1 = j;
                             vertex1 = i;
+
+                            //zoptymalizuj!!
+                            for (int k = 0; k < vertices.Count; k++) {
+                                Vertex w1 = vertices[k];
+                                Vertex w2 = k == vertices.Count - 1 ? vertices[0] : vertices[k + 1];
+                                if (CheckIfLineSegmentsIntersects(currentVertex, point, w1, w2)) {
+                                    vertex1 = vertex1 - 1 < 0 ? point.voronoiVertices.Count - 1 : vertex1 - 1;
+                                    break;
+                                }
+                            }
+                            break;
+
                         }
                     } else {
                         if (CheckIfLineSegmentsIntersects(currentVertex, nextVertex, v1, v2, ref intersection2)) {
                             intersectionsFound++;
                             edge2 = j;
                             vertex2 = i;
+                            for (int k = 0; k < vertices.Count; k++) {
+                                Vertex w1 = vertices[k];
+                                Vertex w2 = k == vertices.Count - 1 ? vertices[0] : vertices[k + 1];
+                                if (CheckIfLineSegmentsIntersects(currentVertex, point, w1, w2)) {
+                                    vertex2 = vertex2 + 1 == point.voronoiVertices.Count ? 0 : vertex2 + 1;
+                                    break;
+                                }
+                            }
+                            break;
+
+
                         }
                     }
                 }
-
             }
-
 
             if (intersectionsFound == 2) {
 
@@ -191,104 +375,115 @@ namespace Astruk.Services
                 point.adjacentTriangles[0].intersections.Add(new Vector(intersection1.X, intersection1.Y));
                 point.adjacentTriangles[0].intersections.Add(new Vector(intersection2.X, intersection2.Y));
 
-
-
             }
 
         }
 
-        private bool FixBorders(DeluanVertex point, IList<Vertex> vertices, Vector i1, Vector i2, int edge1, int edge2, int v1, int v2)
+        private bool FixBorders(DeluanVertex point, IList<Vertex> vertices, Vector intersection1, Vector intersection2, int edgeId1, int edgeId2, int vectorId1, int vectorId2)
         {
             var newList = new List<Vector>();
+            Vector i1 = intersection1;
+            Vector i2 = intersection2;
 
-            //edge1 < edge2
-            if (edge1 < edge2) {
+            Vector firstCircumInside, nextCircumInside, lastCircumInside;
 
-                if (CheckIfLineSegmentsIntersects(point, vertices[edge1], point.voronoiVertices[v1], i1)) {
-                    //ida rosnoca
-                    newList.Add(i1);
-                    for (int i = edge1 + 1; i <= edge2; i++) {
-                        newList.Add(vertices[i]);
-                    }
-                    newList.Add(i2);
-                    Vector currentVertex = point.voronoiVertices[v2];
-                    newList.Add(currentVertex);
-                    int nextIndex = v2;
-                    while (currentVertex != point.voronoiVertices[v1]) {
-                        nextIndex = nextIndex == point.voronoiVertices.Count - 1 ? 0 : nextIndex + 1;
-                        currentVertex = point.voronoiVertices[nextIndex];
-                        newList.Add(currentVertex);
-                    }
-                    point.voronoiVertices = newList;
-                    return true;
-                } else {
-                    //idziem do przodu
-                    newList.Add(i2);
-                    int nextIndex = edge2 + 1;
-                    while (nextIndex <= edge1) {
-                        nextIndex = nextIndex + 1 == vertices.Count ? 0 : nextIndex + 1;
-                        newList.Add(vertices[nextIndex]);
-                    }
-                    newList.Add(i1);
-                    Vector currentVertex = point.voronoiVertices[v1];
-                    newList.Add(currentVertex);
-                    nextIndex = v1 + 1;
-                    while (currentVertex != point.voronoiVertices[v2]) {
-                        nextIndex = nextIndex == point.voronoiVertices.Count - 1 ? 0 : nextIndex + 1;
-                        currentVertex = point.voronoiVertices[nextIndex];
-                        newList.Add(currentVertex);
-                    }
-                    point.voronoiVertices = newList;
-                    return true;
+            int edge1 = edgeId1,
+            edge2 = edgeId2,
+            v1 = vectorId1,
+            v2 = vectorId2;
 
-                }
-
-
-
-            } else {
-
+            if (edgeId1 > edgeId2) {
+                i1 = intersection2;
+                i2 = intersection1;
+                edge1 = edgeId2;
+                edge2 = edgeId1;
+                v1 = vectorId2;
+                v2 = vectorId1;
             }
 
-            return false;
+            firstCircumInside = point.voronoiVertices[v1];
+            lastCircumInside = point.voronoiVertices[v2];
+
+            int prevIndex = v1 - 1 < 0 ? point.voronoiVertices.Count - 1 : v1 - 1;
+            nextCircumInside = point.voronoiVertices[prevIndex];
+
+            if (CheckIfLineSegmentsIntersects(point, vertices[edge1], /*point.voronoiVertices[v1]*/firstCircumInside, i1) || CheckIfLineSegmentsIntersects(point, vertices[edge1],
+                nextCircumInside/*point.voronoiVertices[prevIndex]*/, i1)) {
+                //ida rosnoca
+                newList.Add(i1);
+                for (int i = edge1 + 1; i <= edge2; i++) {
+                    newList.Add(vertices[i]);
+                }
+                newList.Add(i2);
+                Vector currentVertex = lastCircumInside;
+                int nextIndex = v2;
+                newList.Add(currentVertex);
+                while (currentVertex != /*point.voronoiVertices[v1]*/firstCircumInside) {
+                    nextIndex = nextIndex == point.voronoiVertices.Count - 1 ? 0 : nextIndex + 1;
+                    currentVertex = point.voronoiVertices[nextIndex];
+                    newList.Add(currentVertex);
+                }
+                point.voronoiVertices = newList;
+                return true;
+            } else {
+                //idziem do przodu
+                newList.Add(i2);
+                int nextIndex = edge2;
+                do {
+                    nextIndex = nextIndex + 1 == vertices.Count ? 0 : nextIndex + 1;
+                    newList.Add(vertices[nextIndex]);
+                } while (nextIndex != edge1);
+                newList.Add(i1);
+                Vector currentVertex = point.voronoiVertices[v1];
+                nextIndex = v1;
+                newList.Add(currentVertex);
+                while (currentVertex != lastCircumInside) {
+                    nextIndex = nextIndex + 1 >= point.voronoiVertices.Count - 1 ? 0 : nextIndex + 1;
+                    currentVertex = point.voronoiVertices[nextIndex];
+                    newList.Add(currentVertex);
+                }
+                point.voronoiVertices = newList;
+                return true;
+            }
 
         }
 
 
-        private void MakeExoEdges(Triangle triangle, IList<Vertex> vertices)
+
+        private void MakeExoEdges(Triangle triangle, IList<Vertex> borderVertices)
         {
             Vector normalPoint;
-            Vector intersectionPoint = null;
+            Vector normalLineAndBorderIntersection = null;
             CoordsConstraints constraints;
 
             for (int i = 0; i < 3; i++) {
                 if (triangle.triangleNeighbours[i] == null) {
-                    Edge exoEdge = null;
+                    Edge exoTriangleEdge = null;
                     switch (i) {
                         case 0:
-                            exoEdge = new Edge(triangle.points[0], triangle.points[1]);
+                            exoTriangleEdge = new Edge(triangle.points[0], triangle.points[1]);
                             break;
                         case 1:
-                            exoEdge = new Edge(triangle.points[1], triangle.points[2]);
+                            exoTriangleEdge = new Edge(triangle.points[1], triangle.points[2]);
                             break;
                         case 2:
-                            exoEdge = new Edge(triangle.points[2], triangle.points[0]);
+                            exoTriangleEdge = new Edge(triangle.points[2], triangle.points[0]);
                             break;
                     }
 
-                    normalPoint = new Vector((exoEdge.start.X + exoEdge.end.X) / 2, (exoEdge.start.Y + exoEdge.end.Y) / 2);//GetNormalPointOnEdge(exoEdge.start, exoEdge.end, triangle.circumcenter);
+                    normalPoint = new Vector((exoTriangleEdge.start.X + exoTriangleEdge.end.X) / 2, (exoTriangleEdge.start.Y + exoTriangleEdge.end.Y) / 2);
                     constraints = MakeLineConstraints(triangle, normalPoint, i);
 
-                    //foreach (var edge in vertices) {
-                    for (int j = 0; j < vertices.Count; j++) {
-                        Vertex start = vertices[j];
-                        Vertex end = j == vertices.Count - 1 ? vertices[0] : vertices[j + 1];
+                    for (int j = 0; j < borderVertices.Count; j++) {
+                        Vertex startBorderVertex = borderVertices[j];
+                        Vertex endBorderVertex = j == borderVertices.Count - 1 ? borderVertices[0] : borderVertices[j + 1];
                         try {
-                            intersectionPoint = GetIntersectionPoint(triangle.circumcenter, normalPoint, start, end);
+                            normalLineAndBorderIntersection = GetIntersectionPoint(triangle.circumcenter, normalPoint, startBorderVertex, endBorderVertex);
                         } catch (ArgumentException) {
                             continue;
                         }
-                        if (IsPointInDomain(intersectionPoint, start, end, constraints)) {
-                            triangle.borderIntersections[i] = new BorderIntersectionEdge(triangle.circumcenter, intersectionPoint, start);
+                        if (IsPointInDomain(normalLineAndBorderIntersection, startBorderVertex, endBorderVertex, constraints)) {
+                            triangle.borderIntersections[i] = new BorderIntersectionEdge(triangle.circumcenter, normalLineAndBorderIntersection, startBorderVertex);
                             continue;
                         }
                     }
@@ -389,18 +584,25 @@ namespace Astruk.Services
             return new CoordsConstraints(XMin, XMax, YMin, YMax);
         }
 
-        private bool IsPointInDomain(Vector p, Vector start, Vector end, CoordsConstraints c)
+        private bool IsPointInDomain(Vector intersectionPoint, Vector startBorderVertex, Vector endBorderVertex, CoordsConstraints c)
         {
-            bool firstLower = start.X < end.X;
-            var XMin = firstLower ? start.X : end.X;
-            var XMax = firstLower ? end.X : start.X;
+            bool firstLower = startBorderVertex.X < endBorderVertex.X;
+            var XMin = firstLower ? startBorderVertex.X : endBorderVertex.X;
+            var XMax = firstLower ? endBorderVertex.X : startBorderVertex.X;
 
-            firstLower = start.Y < end.Y;
-            var YMin = firstLower ? start.Y : end.Y;
-            var YMax = firstLower ? end.Y : start.Y;
+            firstLower = startBorderVertex.Y < endBorderVertex.Y;
+            var YMin = firstLower ? startBorderVertex.Y : endBorderVertex.Y;
+            var YMax = firstLower ? endBorderVertex.Y : startBorderVertex.Y;
 
 
-            bool isInDomain = p.X >= XMin && p.X >= c.XMin && p.X <= XMax && p.X <= c.XMax && p.Y >= YMin && p.Y >= c.YMin && p.Y <= YMax && p.Y <= c.YMax;
+            bool isInDomain = intersectionPoint.X >= c.XMin
+                && intersectionPoint.X >= XMin
+                && intersectionPoint.X <= c.XMax
+                && intersectionPoint.X <= XMax
+                && intersectionPoint.Y >= c.YMin
+                && intersectionPoint.Y >= YMin
+                && intersectionPoint.Y <= c.YMax
+                && intersectionPoint.Y <= YMax;
             return isInDomain;
         }
 
@@ -429,24 +631,6 @@ namespace Astruk.Services
 
         }
 
-        private Vector GetNormalPointOnEdge(Vector start, Vector end, Vector point)
-        {
-            Vector edgeVector = new Vector(end.X - start.X, end.Y - start.Y);
-            Vector pointVector = new Vector(point.X - start.X, point.Y - start.Y);
-
-            double edgeVectorMagnitude = Magnitude(edgeVector);
-            Vector normalizedEdgeVector = new Vector(edgeVector.X / edgeVectorMagnitude, edgeVector.Y / edgeVectorMagnitude);
-
-            double dotProduct = edgeVector.X * pointVector.X + edgeVector.Y * pointVector.Y;
-
-            return new Vector(start.X + normalizedEdgeVector.X * dotProduct, start.Y + normalizedEdgeVector.Y * dotProduct);
-
-        }
-
-        private double Magnitude(Vector p)
-        {
-            return Math.Sqrt(p.X * p.X + p.Y * p.Y);
-        }
 
 
 

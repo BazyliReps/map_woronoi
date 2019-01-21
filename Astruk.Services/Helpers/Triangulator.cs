@@ -9,7 +9,7 @@ namespace Astruk.Services.Helpers
 {
     class Triangulator
     {
-        public TestMap Triangulate(IEnumerable<DeluanVertex> KeyObjects, IList<Vertex> Vertices)
+        public TestMap Triangulate(IEnumerable<DeluanVertex> KeyObjects)
         {
             var Hull = new LinkedList<Edge>();
             var Triangles = new List<Triangle>(100);

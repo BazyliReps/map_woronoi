@@ -9,12 +9,31 @@ var keyPointNameForm = document.getElementById("keyName");
 var vertexXform = document.getElementById("vertexX");
 var vertexYform = document.getElementById("vertexY");
 
+
+
+
 function clearForms() {
     let forms = document.getElementsByTagName('input');
     let i = 0;
     for (; i < forms.length; i++) {
         forms[i].value = '';
     }
+}
+
+function getMousePos(canvas, evt) {
+    let context = canvas.getContext("2d");
+    var rect = canvas.getBoundingClientRect();
+    return {
+        x: evt.clientX - rect.left,
+        y: evt.clientY - rect.top
+    };
+}
+
+
+function draw(evt, canvas) {
+    var pos = getMousePos(canvas, evt);
+
+    document.getElementById("mouse").insertAdjacentHTML("X: " + pos.x + " Y: " + pos.y);
 }
 
 //POST
@@ -38,14 +57,19 @@ function sendAllData(allData) {
         success: function (returnData) {
             let canvas = document.getElementById("imageDiv").childNodes[0];
             var context = canvas.getContext("2d");
+            let mouse = document.getElementById("mouse");
+            mouse.addEventListener("mousemove", draw);
             context.clearRect(0, 0, canvas.width, canvas.height);
 
             console.log(returnData);
             DrawTriangles(returnData.triangles, context);
-            DrawVertices(allData.Vertices, context);
+            DrawVertices(returnData.Vertices, context);
             let i = 0;
             for (; i < returnData.points.length; i++) {
-                DrawVoronoi(returnData.points[i].voronoiVertices, context);
+                if (returnData.points[i].isExo) {
+
+                    DrawVoronoi(returnData.points[i].voronoiVertices, context);
+                }
             }
             DrawKeyPoints(returnData.triangles, context);
         }
