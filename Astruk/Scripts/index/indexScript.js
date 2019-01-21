@@ -62,16 +62,17 @@ function sendAllData(allData) {
             context.clearRect(0, 0, canvas.width, canvas.height);
 
             console.log(returnData);
-            DrawTriangles(returnData.triangles, context);
-            DrawVertices(returnData.Vertices, context);
+            //DrawTriangles(returnData.triangles, context);
+            //DrawVertices(returnData.Vertices, context);
             let i = 0;
             for (; i < returnData.points.length; i++) {
-                if (returnData.points[i].isExo) {
+                //if (true) {
+                if (!returnData.points[i].isExo) {
 
                     DrawVoronoi(returnData.points[i].voronoiVertices, context);
                 }
             }
-            DrawKeyPoints(returnData.triangles, context);
+            //DrawKeyPoints(returnData.triangles, context);
         }
     })
 }
