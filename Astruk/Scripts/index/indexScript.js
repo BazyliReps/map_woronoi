@@ -61,9 +61,9 @@ function sendAllData(allData) {
             mouse.addEventListener("mousemove", draw);
             context.clearRect(0, 0, canvas.width, canvas.height);
 
-            //console.log(returnData);
+            console.log(returnData);
             //DrawTriangles(returnData.triangles, context);
-            DrawVertices(returnData.Vertices, context);
+            //DrawVertices(returnData.Vertices, context);
             let i = 0;
             for (; i < returnData.points.length; i++) {
                 if (true) {
@@ -72,6 +72,7 @@ function sendAllData(allData) {
                     DrawVoronoi(returnData.points[i].voronoiVertices, context);
                 }
             }
+
             DrawKeyPoints(returnData.triangles, context);
         }
     })

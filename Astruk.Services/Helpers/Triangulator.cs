@@ -73,27 +73,17 @@ namespace Astruk.Services.Helpers
                 }
             }
 
-
-            
-
-            
-
             return new TestMap(Triangles, Points);
         }
-
-        
 
         private void LegalizeEdges(List<Triangle> triangles, Triangle legalisedTriangle, LinkedList<Edge> hull)
         {
             var legalisationQueue = new Queue<Triangle>(100);
             legalisationQueue.Enqueue(legalisedTriangle);
-
             var ignoreList = new List<Triangle>();
-
 
             while (legalisationQueue.Count != 0) {
                 Triangle currentTriangle = legalisationQueue.Dequeue();
-
                 if (ignoreList.Contains(currentTriangle)) {
                     ignoreList.Remove(currentTriangle);
                     currentTriangle = null;
@@ -105,7 +95,6 @@ namespace Astruk.Services.Helpers
                     if (adjacentTriangle != null) {
                         int currentTriangleVertexIndex = currentTriangle.GetVertexOpposingGivenTriangle(adjacentTriangle);
                         int adjacentTriangleVertexIndex = adjacentTriangle.GetVertexOpposingGivenTriangle(currentTriangle);
-
                         double innerAngle = (currentTriangle.GetAngleOnVertex(currentTriangleVertexIndex)
                             + adjacentTriangle.GetAngleOnVertex(adjacentTriangleVertexIndex));
 
@@ -151,7 +140,6 @@ namespace Astruk.Services.Helpers
                                 }
                             }
                         }
-
                     }
                 }
             }
@@ -230,7 +218,6 @@ namespace Astruk.Services.Helpers
                     afterSwap2.AddNeighbour(neighbor);
                 }
             }
-
         }
 
         private int GetNeighbourIndexByVertex(DeluanVertex vertex, DeluanVertex[] vertices)

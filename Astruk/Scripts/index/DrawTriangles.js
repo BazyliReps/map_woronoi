@@ -27,7 +27,7 @@ function DrawVertices(vertices, context) {
     context.beginPath();
     let i = 0;
     for (; i < vertices.length; i++) {
-        //context.fillText(vertices[i].Id, vertices[i].X, vertices[i].Y);
+        context.fillText(vertices[i].Id, vertices[i].X, vertices[i].Y);
         context.moveTo(vertices[i].X, vertices[i].Y);
         if (i == vertices.length - 1) {
             context.lineTo(vertices[0].X, vertices[0].Y);
