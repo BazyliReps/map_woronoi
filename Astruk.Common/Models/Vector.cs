@@ -8,13 +8,12 @@ using System.Threading.Tasks;
 namespace Astruk.Common.Models
 {
     [DebuggerDisplay("{ToString()}")]
-    public class Vector //: Vertex
+    public class Vector
     {
         public double X { get; }
         public double Y { get; }
 
         public Vector(double X, double Y)
-          //: base(X, Y)
         {
             this.X = X;
             this.Y = Y;
@@ -25,8 +24,6 @@ namespace Astruk.Common.Models
             this.X = v.X;
             this.Y = v.Y;
         }
-
-
 
         public static Vector operator -(Vector v1, Vector v2)
         {

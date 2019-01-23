@@ -21,13 +21,17 @@ namespace Astruk.Services.Helpers
             foreach (var vertex in Vertices) {
                 if (vertex.X > XMax) {
                     XMax = vertex.X;
-                } else if (vertex.X < XMin) {
+                }
+
+                if (vertex.X < XMin) {
                     XMin = vertex.X;
                 }
 
                 if (vertex.Y > YMax) {
                     YMax = vertex.Y;
-                } else if (vertex.Y < YMin) {
+                }
+
+                if (vertex.Y < YMin) {
                     YMin = vertex.Y;
                 }
             }

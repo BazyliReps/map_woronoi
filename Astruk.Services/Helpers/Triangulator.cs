@@ -16,8 +16,6 @@ namespace Astruk.Services.Helpers
             var Points = KeyObjects.OrderBy(v => v.X).ToList();
             bool madeTriangle = false;
 
-            
-
             InitPoints(Points);
 
             InitializeHull(Points, Hull, Triangles);
@@ -31,20 +29,14 @@ namespace Astruk.Services.Helpers
                     if (IsOnRight(currentEdge, currentPoint)) {
                         Triangle newTriangle = new Triangle(currentEdge.end, currentEdge.start, currentPoint);
                         Triangles.Add(newTriangle);
-
-                        //dodaj sasiada z bazowej krawedzi
                         newTriangle.AddNeighbour(currentEdge.baseTriangle);
                         currentEdge.baseTriangle.AddNeighbour(newTriangle);
-
                         madeTriangle = true;
-
                         Edge lowerEdge = new Edge(currentEdge.start, currentPoint);
                         Edge upperEdge = new Edge(currentPoint, currentEdge.end);
-
                         var previousEdgeNode = head.Previous ?? head.List.Last;
                         var nextEdgeNode = head.Next ?? head.List.First;
 
-                        //is lower reversed?
                         if (AreReversedEdges(previousEdgeNode.Value, lowerEdge)) {
                             previousEdgeNode.Value.baseTriangle.AddNeighbour(newTriangle);
                             newTriangle.AddNeighbour(previousEdgeNode.Value.baseTriangle);
@@ -53,8 +45,6 @@ namespace Astruk.Services.Helpers
                             lowerEdge.baseTriangle = newTriangle;
                             Hull.AddBefore(head, lowerEdge);
                         }
-
-                        //is upper reversed?
                         if (AreReversedEdges(nextEdgeNode.Value, upperEdge)) {
                             nextEdgeNode.Value.baseTriangle.AddNeighbour(newTriangle);
                             newTriangle.AddNeighbour(nextEdgeNode.Value.baseTriangle);
@@ -72,7 +62,6 @@ namespace Astruk.Services.Helpers
                     head = nextEdge;
                 }
             }
-
             return new TestMap(Triangles, Points);
         }
 
@@ -97,18 +86,13 @@ namespace Astruk.Services.Helpers
                         int adjacentTriangleVertexIndex = adjacentTriangle.GetVertexOpposingGivenTriangle(currentTriangle);
                         double innerAngle = (currentTriangle.GetAngleOnVertex(currentTriangleVertexIndex)
                             + adjacentTriangle.GetAngleOnVertex(adjacentTriangleVertexIndex));
-
                         if (innerAngle > 180) {
-                            //swap edges
-
                             var newTriangles = SwapEdgesAndFixNeighborRef(currentTriangle, adjacentTriangle, currentTriangle.points[currentTriangleVertexIndex]
                                 , adjacentTriangle.points[adjacentTriangleVertexIndex]);
                             var firstNew = newTriangles[0];
                             var secondNew = newTriangles[1];
-
                             triangles.Remove(currentTriangle);
                             triangles.Remove(adjacentTriangle);
-
                             triangles.Add(newTriangles[0]);
                             triangles.Add(newTriangles[1]);
 
@@ -116,8 +100,6 @@ namespace Astruk.Services.Helpers
                                 ignoreList.Add(adjacentTriangle);
                                 adjacentTriangle = null;
                             }
-
-                            //popraw na sprawdzenie tylko 4 ostatnich krawedzi!
                             foreach (var edge in hull) {
                                 if (firstNew.points.Contains(edge.start) && firstNew.points.Contains(edge.end)) {
                                     edge.baseTriangle = firstNew;

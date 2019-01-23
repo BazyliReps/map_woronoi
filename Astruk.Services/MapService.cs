@@ -71,9 +71,7 @@ namespace Astruk.Services
                         vertex.isExo = true;
                         vertex.exoTriangles.Add(triangle);
                     }
-                    //tu sie jebac moze
                     vertex.adjacentTriangles.Add(triangle);
-
                 }
             }
         }
