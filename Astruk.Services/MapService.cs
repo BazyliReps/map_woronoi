@@ -89,16 +89,18 @@ namespace Astruk.Services
 
         private void GetVoronoiVertices(List<DeluanVertex> allPoints, IList<Vertex> vertices, CoordsConstraints MapConstraints)
         {
+
+            var borders = new List<Vector>() {
+                    new Vector(MapConstraints.XMin, MapConstraints.YMin),
+                    new Vector(MapConstraints.XMax, MapConstraints.YMin),
+                    new Vector(MapConstraints.XMax, MapConstraints.YMax),
+                    new Vector(MapConstraints.XMin, MapConstraints.YMax)
+                };
             foreach (var deluanVertex in allPoints) {
 
                 var shouldCheckEdges = false;
 
-                var borders = new List<Vector>() {
-                    new Vector(MapConstraints.XMin-10, MapConstraints.YMin),
-                    new Vector(MapConstraints.XMax, MapConstraints.YMin-10),
-                    new Vector(MapConstraints.XMax+10, MapConstraints.YMax+10),
-                    new Vector(MapConstraints.XMin, MapConstraints.YMax)
-                };
+
 
                 if (deluanVertex.exoTriangles.Count == 0) {
                     var firstTriangle = deluanVertex.adjacentTriangles.First();
@@ -329,7 +331,7 @@ namespace Astruk.Services
                             outsideBorders = false;
                         }
                         foundIntersections.Add(new Vector(intersection1));
-                        break;
+                        //break;
                     }
                 }
 
@@ -339,7 +341,7 @@ namespace Astruk.Services
                     suspectedOfBeingOutside.Add(currentVoronoiVertex);
                 }
             }
-            if(foundIntersections.Count==0) {
+            if (foundIntersections.Count == 0) {
                 suspectedOfBeingOutside.Clear();
             }
             toRemove.AddRange(suspectedOfBeingOutside);
@@ -373,7 +375,7 @@ namespace Astruk.Services
             v1 = firstInnerVoronoiVertexId,
             v2 = secondInnerVoronoiVertexId;
 
-            if (edgeId1 > edgeId2 || (intersection1 - vertices[edgeId1]).Magnitude() > (intersection2 - vertices[edgeId1]).Magnitude() ) {
+            if (edgeId1 > edgeId2 || (intersection1 - vertices[edgeId1]).Magnitude() > (intersection2 - vertices[edgeId1]).Magnitude()) {
                 i1 = intersection2;
                 i2 = intersection1;
                 edge1 = edgeId2;
@@ -550,15 +552,18 @@ namespace Astruk.Services
             var YMin = firstLower ? startBorderVertex.Y : endBorderVertex.Y;
             var YMax = firstLower ? endBorderVertex.Y : startBorderVertex.Y;
 
+            bool horizontalParallel = YMin == YMax;
+            bool verticalParallel = XMin == XMax;
+
 
             bool isInDomain = intersectionPoint.X >= c.XMin
-                && intersectionPoint.X >= XMin
+                && (intersectionPoint.X >= XMin || verticalParallel)
                 && intersectionPoint.X <= c.XMax
-                && intersectionPoint.X <= XMax
+                && (intersectionPoint.X <= XMax || verticalParallel)
                 && intersectionPoint.Y >= c.YMin
-                && intersectionPoint.Y >= YMin
+                && (intersectionPoint.Y >= YMin || horizontalParallel)
                 && intersectionPoint.Y <= c.YMax
-                && intersectionPoint.Y <= YMax;
+                && (intersectionPoint.Y <= YMax || horizontalParallel);
             return isInDomain;
         }
 
