@@ -27,7 +27,7 @@ function DrawVertices(vertices, context) {
     context.beginPath();
     let i = 0;
     for (; i < vertices.length; i++) {
-        context.fillText(vertices[i].Id, vertices[i].X, vertices[i].Y);
+        //context.fillText(vertices[i].Id, vertices[i].X, vertices[i].Y);
         context.moveTo(vertices[i].X, vertices[i].Y);
         if (i == vertices.length - 1) {
             context.lineTo(vertices[0].X, vertices[0].Y);
@@ -84,8 +84,6 @@ function DrawTriangle(triangle, context) {
 
     for (; i < 3; i++) {
         context.fillText(triangle.points[i].Id, triangle.points[i].X, triangle.points[i].Y);
-
-        /*
         if (triangle.borderIntersections[i] != null) {
             context.beginPath();
             context.moveTo(triangle.borderIntersections[i].Start.X, triangle.borderIntersections[i].Start.Y);
@@ -104,7 +102,6 @@ function DrawTriangle(triangle, context) {
         context.lineTo(nextX, nextY);
         context.closePath();
         context.stroke();
-        */
     }
 
 }

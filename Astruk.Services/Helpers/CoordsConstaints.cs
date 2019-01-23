@@ -31,8 +31,12 @@ namespace Astruk.Services.Helpers
                     YMin = vertex.Y;
                 }
             }
+            XMax += 10;
+            XMin -= 10;
+            YMax += 10;
+            YMin -= 10;
         }
-        public CoordsConstraints(double XMin, double XMax, double YMin, double YMax) 
+        public CoordsConstraints(double XMin, double XMax, double YMin, double YMax)
         {
             this.XMin = XMin;
             this.XMax = XMax;
