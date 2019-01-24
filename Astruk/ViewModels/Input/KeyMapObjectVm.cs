@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace Astruk.ViewModels
+﻿namespace Astruk.ViewModels.Input
 {
-    public class KeyMapObjectVM
+    public class KeyMapObjectVm
     {
         public int Id { get; set; }
         public double X { get; set; }
