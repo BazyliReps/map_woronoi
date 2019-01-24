@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Astruk.Services.Models
+﻿namespace Astruk.Services.Models
 {
     public class Edge
     {

@@ -23,7 +23,7 @@ namespace Astruk.Services.Models
 		public List<Vector> VoronoiVertices { get; set; }
 		public List<MapObject> Objects { get; }
 
-		public bool isExo = false;
+		public bool IsExo = false;
 
 
 		public List<Vertex> GetVoronoiVerticesAsVertex()
