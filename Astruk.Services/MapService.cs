@@ -27,7 +27,7 @@ namespace Astruk.Services
 			return new Map(vertices, CreateRegions(deluanVertices));
 		}
 
-		private IEnumerable<Region> CreateRegions(IList<DeluanVertex> deluanVertices)
+		private static IEnumerable<Region> CreateRegions(IList<DeluanVertex> deluanVertices)
 		{
 			return deluanVertices.Select(deluanVertex => new Region(deluanVertex.KeyObject,
 				deluanVertex.GetVoronoiVerticesAsVertex(), deluanVertex.Objects)).ToList();
@@ -65,7 +65,7 @@ namespace Astruk.Services
 			}
 		}
 
-		private void SetBordersClockwise(ref IList<Vertex> vertices)
+		private static void SetBordersClockwise(ref IList<Vertex> vertices)
 		{
 			double det = 0;
 			for (var i = 0; i < vertices.Count - 1; i++)
@@ -85,7 +85,7 @@ namespace Astruk.Services
 			vertices = newList;
 		}
 
-		private void InitVoronoiCreation(IList<Triangle> allTriangles)
+		private static void InitVoronoiCreation(IList<Triangle> allTriangles)
 		{
 			foreach (var triangle in allTriangles)
 			{
@@ -104,7 +104,7 @@ namespace Astruk.Services
 			}
 		}
 
-		private void GetVoronoiVertices(List<DeluanVertex> allPoints, IList<Vertex> vertices,
+		private void GetVoronoiVertices(IList<DeluanVertex> allPoints, IList<Vertex> vertices,
 			CoordsConstraints mapConstraints)
 		{
 			var borders = new List<Vector>()
@@ -276,14 +276,14 @@ namespace Astruk.Services
 			}
 		}
 
-		private bool IsWithinBorders(Vector v, CoordsConstraints constraints)
+		private static bool IsWithinBorders(Vector v, CoordsConstraints constraints)
 		{
 			return (v.X > constraints.XMin && v.X < constraints.XMax && v.Y > constraints.YMin &&
 			        v.Y < constraints.YMax);
 		}
 
 
-		private bool MakeExoEdge(Triangle triangle, List<Vector> borderVertices, int nullNeighborIndex,
+		private bool MakeExoEdge(Triangle triangle, IList<Vector> borderVertices, int nullNeighborIndex,
 			ref Vector intersection, ref int edgeId, CoordsConstraints mapConstraints)
 		{
 			Edge exoTriangleEdge;
@@ -334,7 +334,6 @@ namespace Astruk.Services
 		private void CheckEdges(DeluanVertex point, IList<Vertex> vertices, bool isOuterRegion)
 		{
 			Vector intersection = null;
-			var intersectionsFound = 0;
 			var outsideBorders = false;
 
 			var toRemove = new List<Vector>();
@@ -364,7 +363,6 @@ namespace Astruk.Services
 
 					if (!CheckIfLineSegmentsIntersects(currentVoronoiVertex, nextVoronoiVertex, v1, v2,
 						ref intersection, out var isFirstInside)) continue;
-					intersectionsFound++;
 					idsOfEdges.Add(j);
 					if (isFirstInside)
 					{
@@ -464,8 +462,6 @@ namespace Astruk.Services
 				return false;
 			}
 
-			var prevIndex = v1 - 1 < 0 ? point.VoronoiVertices.Count - 1 : v1 - 1;
-
 			if (!CheckIfLineSegmentsIntersects(point, vertices[edge2], lastCircumInside, i2))
 			{
 				newList.Add(i1);
@@ -515,7 +511,7 @@ namespace Astruk.Services
 			}
 		}
 
-		private bool CheckIfLineSegmentsIntersects(Vector start, Vector end, Vector edgeStart, Vector edgeEnd,
+		private static bool CheckIfLineSegmentsIntersects(Vector start, Vector end, Vector edgeStart, Vector edgeEnd,
 			ref Vector intersection, out bool firstOnRight)
 		{
 			const double nullOffset = 0.00000001;
@@ -546,7 +542,7 @@ namespace Astruk.Services
 
 		private static bool CheckIfLineSegmentsIntersects(Vector p, Vector pr, Vector q, Vector qs)
 		{
-			var nullOffset = 0.00000001;
+			const double nullOffset = 0.00000001;
 			var r = pr - p;
 			var s = qs - q;
 			var product = r * s;
@@ -664,7 +660,7 @@ namespace Astruk.Services
 			return isInDomain;
 		}
 
-		private Vector GetIntersectionPoint(Vector start1, Vector end1, Vector start2, Vector end2)
+		private static Vector GetIntersectionPoint(Vector start1, Vector end1, Vector start2, Vector end2)
 		{
 			const double nullOffset = 0.00001;
 
