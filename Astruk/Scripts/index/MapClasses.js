@@ -18,9 +18,8 @@ class KeyMapObject {
 }
 
 class Pair {
-    constructor(name, type) {
-        this.Name = name;
-        this.Type = type;
+    constructor(key, value) {
+        this.key = value;
     }
 
 }
@@ -29,11 +28,13 @@ class MapObjectType {
     constructor(id, typeName) {
         this.Id = id;
         this.Name = typeName;
-        this.Parameters = [];
+        this.Keys = [];
+        this.Values = [];
     }
 
     addPair(fieldName, type) {
-        this.Parameters.push(new Pair(fieldName, type));
+        this.Keys.push(fieldName);
+        this.Values.push(type);
     }
 
 }

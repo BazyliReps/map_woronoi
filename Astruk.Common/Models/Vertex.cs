@@ -8,18 +8,9 @@ namespace Astruk.Common.Models
         public Vertex(double X, double Y) 
             : base(X, Y)
         {
-            //Id = id;
-            /*
-            this.X = X;
-            this.Y = Y;
-            */
+            
         }
 
-        public int Id { get; set; }
-
-        public override string ToString()
-        {
-            return $"v:{Id}";
-        }
+        
     }
 }

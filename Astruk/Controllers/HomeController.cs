@@ -4,6 +4,7 @@ using System.Web.Mvc;
 using Astruk.Common.Interfaces;
 using Astruk.Common.Models;
 using Astruk.ViewModels;
+using System;
 
 namespace Astruk.Controllers
 {
@@ -28,41 +29,45 @@ namespace Astruk.Controllers
         {
 
 
-            var points = new List<DeluanVertex>();
             var vertices = new List<Vertex>();
             var keyObjects = new List<KeyMapObject>();
             var types = new List<MapObjectType>();
             var objects = new List<MapObject>();
 
             if (Vertices != null) {
-                int i = 0;
                 foreach (var vertex in Vertices) {
-                    var v = new Vertex(vertex.X, vertex.Y) {
-                        Id = i++
-                    };
+                    var v = new Vertex(vertex.X, vertex.Y);
                     vertices.Add(v);
                 }
             }
 
             if (KeyObjects != null) {
-
                 foreach (var keyObject in KeyObjects) {
-                    var newPoint = new DeluanVertex(keyObject.X, keyObject.Y);
-                    if (!points.Contains(newPoint)) {
-                        points.Add(newPoint);
-                    }
                     keyObjects.Add(new KeyMapObject(keyObject.Id, keyObject.X, keyObject.Y, keyObject.Name));
                 }
             }
 
             foreach (var type in Types) {
-                types.Add(new MapObjectType(type.Id, type.Name, type.Parameters));
+                var Parameters = new List<KeyValuePair<string, string>>();
+                for (int i = 0; i < type.Keys.Count(); i++) {
+                    Parameters.Add(new KeyValuePair<string, string>(type.Keys[i], type.Values[i]));
+                }
+                types.Add(new MapObjectType(type.Id, type.Name, Parameters));
             }
 
             if (Objects != null) {
-
                 foreach (var obj in Objects) {
-                    objects.Add(new MapObject(obj.Id, types.First(type => type.Id == obj.Type.Id), obj.Parameters));
+                    var Parameters = new Dictionary<string, string>();
+                    if (obj != null) {
+                        MapObjectType type = types.First(t => t.Name == obj.Type);
+                        for (int i = 0; i < obj.Parameters.Count(); i++) {
+                            try {
+                                Parameters.Add(type.Parameters[i].Key, obj.Parameters[i]);
+
+                            } catch (ArgumentOutOfRangeException) { }
+                        }
+                        objects.Add(new MapObject(obj.Id, type, Parameters));
+                    }
                 }
             }
 

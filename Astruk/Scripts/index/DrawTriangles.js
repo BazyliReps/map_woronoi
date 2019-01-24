@@ -38,6 +38,24 @@ function DrawVertices(vertices, context) {
     context.stroke();
 }
 
+function DrawRegion(region, context) {
+    context.beginPath();
+    context.fillStyle = "black";
+    context.arc(region.KeyObject.X, region.KeyObject.Y, 4, 0, 2 * Math.PI);
+    context.fill();
+    context.stroke;
+    context.closePath();
+    let i = 0;
+    context.fillStyle = "green";
+    for (; i < region.Objects.length; i++) {
+        context.beginPath();
+        context.arc(region.Objects[i].Parameters.X, region.Objects[i].Parameters.Y, 4, 0, 2 * Math.PI);
+        context.fill();
+        context.closePath();
+    }
+    DrawVoronoi(region.Vertices, context);
+}
+
 function DrawVoronoi(vertices, context) {
     context.strokeStyle = "blue";
     context.beginPath();

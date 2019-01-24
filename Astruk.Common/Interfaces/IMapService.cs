@@ -5,7 +5,7 @@ namespace Astruk.Common.Interfaces
 {
 	public interface IMapService
 	{
-		TestMap GenerateMap(IList<Vertex> vertices, IEnumerable<KeyMapObject> keyObjects,
+		Map GenerateMap(IList<Vertex> vertices, IEnumerable<KeyMapObject> keyObjects,
 			IEnumerable<MapObjectType> types, IEnumerable<MapObject> objects);
 	}
 }

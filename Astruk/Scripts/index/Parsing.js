@@ -34,7 +34,7 @@
     }
     sendAllData(allData);
 
-} 
+}
 
 function cutDot(element) {
     const number = element.split('.');
@@ -42,11 +42,14 @@ function cutDot(element) {
 
 }
 
+function trimAll(string) {
+    return string.replace(/(\r\n|\n|\r)/gm, "");
+}
+
 function readVertex(line) {
     const [id, x, y] = line.split(' ');
     let trimmedId = cutDot(id);
     if (isNumber(trimmedId)) {
-        //popraw zeby nie id
         let v = new Vertex(x * 1, y * 1);
         v.Id = id - 1;
         return v;
@@ -58,7 +61,7 @@ function readKeyMapObject(line) {
     const [id, x, y, name] = line.split(' ');
     let trimmedId = cutDot(id);
     if (isNumber(trimmedId)) {
-        return new KeyMapObject(id, x * 1, y * 1, name);
+        return new KeyMapObject(trimmedId, x * 1, y * 1, trimAll(name));
     }
 
 }
@@ -67,11 +70,11 @@ function readMapObjectType(line) {
     const [id, typeName, ...others] = line.split(' ');
     var trimmedId = cutDot(id);
     if (isNumber(trimmedId)) {
-        var objectType = new MapObjectType(trimmedId, typeName);
+        var objectType = new MapObjectType(trimmedId, trimAll(typeName));
         let k = 0;
         for (k; k < others.length - 1; k += 2) {
-                objectType.addPair(others[k], others[k + 1]);
-            }
+            objectType.addPair(trimAll(others[k]), trimAll(others[k+1]));
+        }
         return objectType;
     }
 }
@@ -80,11 +83,11 @@ function readMapObject(line) {
     const [id, type, ...others] = line.split(' ');
     var trimmedId = cutDot(id);
     if (isNumber(trimmedId)) {
-        var object = new MapObject(trimmedId, type);
+        var object = new MapObject(trimmedId, trimAll(type));
         let j = 0;
-            for (j; j < others.length; j++) {
-                object.addParameter(others[j]);
-            }
+        for (j; j < others.length; j ++) {
+            object.addParameter(trimAll(others[j]));
+        }
         return object;
     }
 }

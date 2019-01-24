@@ -7,8 +7,12 @@ namespace Astruk.ViewModels
 {
     public class MapObjectTypeVM
     {
+
         public int Id { get; set; }
         public string Name { get; set; }
-        public Dictionary<string, string> Parameters { get; set; }
+        public string[] Keys { get; set; }
+        public string[] Values { get; set; }
+
+
     }
 }

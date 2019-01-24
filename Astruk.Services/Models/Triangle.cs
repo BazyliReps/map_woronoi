@@ -2,8 +2,9 @@
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
+using Astruk.Common.Models;
 
-namespace Astruk.Common.Models
+namespace Astruk.Services.Models
 {
     [DebuggerDisplay("{ToString()}")]
     public class Triangle
@@ -11,8 +12,6 @@ namespace Astruk.Common.Models
         public Triangle[] triangleNeighbours;
         public DeluanVertex[] points;
         public Vector circumcenter;
-        public double radius;
-        public BorderIntersectionEdge[] borderIntersections;
         public bool isObtuse = false;
         public List<Vector> intersections = new List<Vector>();
 
@@ -23,7 +22,6 @@ namespace Astruk.Common.Models
             this.triangleNeighbours = new Triangle[3];
             this.points = new DeluanVertex[3];
             this.angles = new double[3];
-            this.borderIntersections = new BorderIntersectionEdge[3];
             points[0] = p1;
             points[1] = p2;
             points[2] = p3;
@@ -80,9 +78,7 @@ namespace Astruk.Common.Models
             var ret = Math.Abs(angle * (180 / Math.PI));
             ret = ret > 180 ? 360 - ret : ret;
             return ret;
-
         }
-
 
         private void FindCircumcenter()
         {
@@ -101,7 +97,6 @@ namespace Astruk.Common.Models
             double y = (A * F - C * E) / G;
 
             this.circumcenter = new Vector(x, y);
-            //radius = Math.Sqrt(((circumcenter.X - p1.X) * (circumcenter.X - p1.X)) + ((circumcenter.Y - p1.Y) * (circumcenter.Y - p1.Y)));
 
         }
 

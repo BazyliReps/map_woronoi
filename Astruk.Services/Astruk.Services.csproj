@@ -47,6 +47,10 @@
     <Compile Include="Helpers\CoordsConstaints.cs" />
     <Compile Include="Helpers\Triangulator.cs" />
     <Compile Include="MapService.cs" />
+    <Compile Include="Models\DeluanVertex.cs" />
+    <Compile Include="Models\Edge.cs" />
+    <Compile Include="Models\TriangulatedArea.cs" />
+    <Compile Include="Models\Triangle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

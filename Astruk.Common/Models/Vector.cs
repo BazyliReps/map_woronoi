@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace Astruk.Common.Models
 {
-    [DebuggerDisplay("{ToString()}")]
     public class Vector
     {
         public double X { get; }

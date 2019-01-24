@@ -4,42 +4,69 @@ using System.Linq;
 using Astruk.Common.Interfaces;
 using Astruk.Common.Models;
 using Astruk.Services.Helpers;
+using Astruk.Services.Models;
 
 namespace Astruk.Services
 {
     internal class MapService : IMapService
     {
-        public TestMap GenerateMap(IList<Vertex> Vertices, IEnumerable<KeyMapObject> KeyObjects, IEnumerable<MapObjectType> Types, IEnumerable<MapObject> Objects)
+        public Map GenerateMap(IList<Vertex> Vertices, IEnumerable<KeyMapObject> KeyObjects, IEnumerable<MapObjectType> Types, IEnumerable<MapObject> Objects)
         {
             SetBordersClockwise(ref Vertices);
             Triangulator TriangulationMaker = new Triangulator();
             List<DeluanVertex> DeluanVertices = new List<DeluanVertex>();
-            int i = 0;
+            CoordsConstraints MapConstraints = new CoordsConstraints(Vertices);
             foreach (var keyObject in KeyObjects) {
-                DeluanVertex v = new DeluanVertex(keyObject.X, keyObject.Y) {
-                    Id = "p" + i++
-                };
+                DeluanVertex v = new DeluanVertex(keyObject.X, keyObject.Y, keyObject);
                 DeluanVertices.Add(v);
             }
+            TriangulatedArea TriangulatedMap = TriangulationMaker.Triangulate(DeluanVertices);
 
-            TestMap data = TriangulationMaker.Triangulate(DeluanVertices);
-            data.Vertices = Vertices;
-            CoordsConstraints MapConstraints = new CoordsConstraints(Vertices);
-
-            InitVoronoiCreation(data.triangles);
+            InitVoronoiCreation(TriangulatedMap.triangles);
             GetVoronoiVertices(DeluanVertices, Vertices, MapConstraints);
+            AssignObjectsToDeluanVertices(Objects, DeluanVertices);
 
-            foreach (var t in data.triangles) {
-                t.triangleNeighbours = null;
-            }
-            foreach (var p in data.points) {
-                p.adjacentTriangles = null;
-                p.exoTriangles = null;
-            }
-            var pointsByEdges = data.points.OrderBy(p => p.voronoiVertices.Count);
-            data.points = pointsByEdges.ToList();
+            return new Map(Vertices, CreateRegions(DeluanVertices));
+        }
 
-            return data;
+        private IEnumerable<Region> CreateRegions(List<DeluanVertex> DeluanVertices)
+        {
+            var Regions = new List<Region>();
+            foreach(var deluanVertex in DeluanVertices) {
+                Regions.Add(new Region(deluanVertex.KeyObject, deluanVertex.GetVoronoiVerticesAsVertex(), deluanVertex.Objects));
+            }
+            return Regions;
+        }
+
+        private void AssignObjectsToDeluanVertices(IEnumerable<MapObject> Objects, List<DeluanVertex> RegionCenters)
+        {
+            DeluanVertex closestRegion = null;
+            double distance;
+            double minDistance;
+            foreach (var currentObject in Objects) {
+                closestRegion = null;
+                minDistance = double.MaxValue;
+                foreach (var region in RegionCenters) {
+                    if (!currentObject.Parameters.TryGetValue("x", out string xString)) {
+                        currentObject.Parameters.TryGetValue("X", out xString);
+                    }
+                    if (!currentObject.Parameters.TryGetValue("y", out string yString)) {
+                        currentObject.Parameters.TryGetValue("Y", out yString);
+                    }
+                    if (Double.TryParse(xString, out double x) && double.TryParse(yString, out double y)) {
+                        distance = Math.Sqrt((region.X - x) * (region.X - x) + (region.Y - x) * (region.Y - y));
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            closestRegion = region;
+                        }
+                    } else {
+                        continue;
+                    }
+                }
+                if (closestRegion != null) {
+                    closestRegion.Objects.Add(currentObject);
+                }
+            }
         }
 
         private void SetBordersClockwise(ref IList<Vertex> Vertices)
@@ -55,7 +82,6 @@ namespace Astruk.Services
                 List<Vertex> newList = new List<Vertex>();
                 for (int i = 0; i < Vertices.Count; i++) {
                     newList.Add(Vertices[Vertices.Count - i - 1]);
-                    newList[i].Id = i;
                 }
                 Vertices = newList;
             }
@@ -69,9 +95,9 @@ namespace Astruk.Services
                     var prevIndex = i == 0 ? 2 : i - 1;
                     if (triangle.triangleNeighbours[i] == null || triangle.triangleNeighbours[prevIndex] == null) {
                         vertex.isExo = true;
-                        vertex.exoTriangles.Add(triangle);
+                        vertex.ExoTriangles.Add(triangle);
                     }
-                    vertex.adjacentTriangles.Add(triangle);
+                    vertex.AdjacentTriangles.Add(triangle);
                 }
             }
         }
@@ -87,16 +113,16 @@ namespace Astruk.Services
                 };
             foreach (var deluanVertex in allPoints) {
                 var shouldCheckEdges = false;
-                if (deluanVertex.exoTriangles.Count == 0) {
-                    var firstTriangle = deluanVertex.adjacentTriangles.First();
+                if (deluanVertex.ExoTriangles.Count == 0) {
+                    var firstTriangle = deluanVertex.AdjacentTriangles.First();
                     var currentTriangle = firstTriangle;
-                    var numberOfTriangles = deluanVertex.adjacentTriangles.Count;
+                    var numberOfTriangles = deluanVertex.AdjacentTriangles.Count;
 
                     for (int j = 0; j < numberOfTriangles; j++) {
                         if (currentTriangle.isObtuse) {
                             shouldCheckEdges = true;
                         }
-                        deluanVertex.voronoiVertices.Add(currentTriangle.circumcenter);
+                        deluanVertex.VoronoiVertices.Add(currentTriangle.circumcenter);
                         for (int i = 0; i < 3; i++) {
                             var nextTriangle = currentTriangle.triangleNeighbours[i];
                             if (nextTriangle != null && i == Array.IndexOf(currentTriangle.points, deluanVertex)) {
@@ -113,20 +139,20 @@ namespace Astruk.Services
                         intersection2 = null;
                     int firstIntersectedEdgeId = -1;
                     int secondIntersectedEdgeId = -1;
-                    Triangle exoTriangle = deluanVertex.exoTriangles.First();
-                    Triangle endTriangle = deluanVertex.exoTriangles.Last();
+                    Triangle exoTriangle = deluanVertex.ExoTriangles.First();
+                    Triangle endTriangle = deluanVertex.ExoTriangles.Last();
                     bool isClockwise = false;
                     bool foundFirstExoLine = false;
 
-                    if (deluanVertex.exoTriangles.Count == 1) {
+                    if (deluanVertex.ExoTriangles.Count == 1) {
                         secondIntersectedEdgeId = Array.IndexOf(exoTriangle.points, deluanVertex);
                         firstIntersectedEdgeId = secondIntersectedEdgeId == 0 ? 2 : secondIntersectedEdgeId - 1;
                         if (IsWithinBorders(exoTriangle.circumcenter, MapConstraints)) {
                             MakeExoEdge(exoTriangle, borders, firstIntersectedEdgeId, ref intersection1, ref firstIntersectedEdgeId, MapConstraints);
                             MakeExoEdge(exoTriangle, borders, secondIntersectedEdgeId, ref intersection2, ref secondIntersectedEdgeId, MapConstraints);
-                            deluanVertex.voronoiVertices.Add(intersection1);
-                            deluanVertex.voronoiVertices.Add(exoTriangle.circumcenter);
-                            deluanVertex.voronoiVertices.Add(intersection2);
+                            deluanVertex.VoronoiVertices.Add(intersection1);
+                            deluanVertex.VoronoiVertices.Add(exoTriangle.circumcenter);
+                            deluanVertex.VoronoiVertices.Add(intersection2);
                         }
                     } else {
                         for (int i = 0; i < 3; i++) {
@@ -137,8 +163,8 @@ namespace Astruk.Services
                             }
                         }
                         if (!isClockwise) {
-                            exoTriangle = deluanVertex.exoTriangles.Last();
-                            endTriangle = deluanVertex.exoTriangles.First();
+                            exoTriangle = deluanVertex.ExoTriangles.Last();
+                            endTriangle = deluanVertex.ExoTriangles.First();
                         }
                         int nextTriangleIndex = Array.IndexOf(exoTriangle.points, deluanVertex);
                         int nullNeighborIndex = nextTriangleIndex - 1;
@@ -146,7 +172,7 @@ namespace Astruk.Services
 
                         if (IsWithinBorders(exoTriangle.circumcenter, MapConstraints)) {
                             if (MakeExoEdge(exoTriangle, borders, nullNeighborIndex, ref intersection1, ref firstIntersectedEdgeId, MapConstraints)) {
-                                deluanVertex.voronoiVertices.Add(intersection1);
+                                deluanVertex.VoronoiVertices.Add(intersection1);
                                 foundFirstExoLine = true;
                             }
                         }
@@ -154,7 +180,7 @@ namespace Astruk.Services
                         Triangle nextTriangle = currentTriangle;
                         bool isOnRight;
 
-                        for (int j = 0; j < deluanVertex.adjacentTriangles.Count; j++) {
+                        for (int j = 0; j < deluanVertex.AdjacentTriangles.Count; j++) {
                             for (int i = 0; i < 3; i++) {
                                 nextTriangle = currentTriangle.triangleNeighbours[i];
                                 if (nextTriangle != null && i == Array.IndexOf(currentTriangle.points, deluanVertex)) {
@@ -162,21 +188,21 @@ namespace Astruk.Services
                                 }
                             }
                             if (IsWithinBorders(currentTriangle.circumcenter, MapConstraints)) {
-                                deluanVertex.voronoiVertices.Add(currentTriangle.circumcenter);
+                                deluanVertex.VoronoiVertices.Add(currentTriangle.circumcenter);
                             } else {
                                 for (int i = 0; i < borders.Count; i++) {
                                     if (foundFirstExoLine) {
-                                        if (CheckIfLineSegmentsIntersects(currentTriangle.circumcenter, deluanVertex.voronoiVertices.Last()
+                                        if (CheckIfLineSegmentsIntersects(currentTriangle.circumcenter, deluanVertex.VoronoiVertices.Last()
                                             , borders[i], borders[i == 3 ? 0 : i + 1],
                                         ref intersection2, out isOnRight)) {
-                                            deluanVertex.voronoiVertices.Add(new Vector(intersection2));
+                                            deluanVertex.VoronoiVertices.Add(new Vector(intersection2));
                                             secondIntersectedEdgeId = i;
                                             break;
                                         }
-                                    } else if(currentTriangle!=endTriangle) {
+                                    } else if (currentTriangle != endTriangle) {
                                         if (CheckIfLineSegmentsIntersects(currentTriangle.circumcenter, nextTriangle.circumcenter, borders[i], borders[i == 3 ? 0 : i + 1],
                                         ref intersection1, out isOnRight)) {
-                                            deluanVertex.voronoiVertices.Add(new Vector(intersection1));
+                                            deluanVertex.VoronoiVertices.Add(new Vector(intersection1));
                                             firstIntersectedEdgeId = i;
                                             foundFirstExoLine = true;
                                             break;
@@ -190,7 +216,7 @@ namespace Astruk.Services
                         nullNeighborIndex = Array.IndexOf(endTriangle.points, deluanVertex);
                         if (IsWithinBorders(endTriangle.circumcenter, MapConstraints)) {
                             if (MakeExoEdge(endTriangle, borders, nullNeighborIndex, ref intersection2, ref secondIntersectedEdgeId, MapConstraints)) {
-                                deluanVertex.voronoiVertices.Add(new Vector(intersection2));
+                                deluanVertex.VoronoiVertices.Add(new Vector(intersection2));
                             }
                         }
                     }
@@ -198,7 +224,7 @@ namespace Astruk.Services
                     if (firstIntersectedEdgeId != secondIntersectedEdgeId) {
                         do {
                             currentId = currentId == 3 ? 0 : currentId + 1;
-                            deluanVertex.voronoiVertices.Add(borders[currentId]);
+                            deluanVertex.VoronoiVertices.Add(borders[currentId]);
 
                         } while (currentId != firstIntersectedEdgeId);
                     }
@@ -267,10 +293,10 @@ namespace Astruk.Services
             var idsOfEdges = new List<int>();
             var suspectedOfBeingOutside = new List<Vector>();
 
-            for (int i = 0; i < point.voronoiVertices.Count; i++) {
-                currentVoronoiVertex = point.voronoiVertices[i];
-                var nextI = i == point.voronoiVertices.Count - 1 ? 0 : i + 1;
-                nextVoronoiVertex = point.voronoiVertices[nextI];
+            for (int i = 0; i < point.VoronoiVertices.Count; i++) {
+                currentVoronoiVertex = point.VoronoiVertices[i];
+                var nextI = i == point.VoronoiVertices.Count - 1 ? 0 : i + 1;
+                nextVoronoiVertex = point.VoronoiVertices[nextI];
                 var timesFirstInside = 0;
                 var timesSecondInside = 0;
 
@@ -320,7 +346,7 @@ namespace Astruk.Services
             toRemove.AddRange(suspectedOfBeingOutside);
 
             foreach (var v in toRemove) {
-                point.voronoiVertices.Remove(v);
+                point.VoronoiVertices.Remove(v);
             }
 
             if (foundIntersections.Count > 0) {
@@ -337,8 +363,8 @@ namespace Astruk.Services
             Vector i1 = intersection1;
             Vector i2 = intersection2;
 
-            int firstInnerVoronoiVertexId = point.voronoiVertices.IndexOf(firstInnerVoronoiVertex);
-            int secondInnerVoronoiVertexId = point.voronoiVertices.IndexOf(secondInnerVoronoiVertex);
+            int firstInnerVoronoiVertexId = point.VoronoiVertices.IndexOf(firstInnerVoronoiVertex);
+            int secondInnerVoronoiVertexId = point.VoronoiVertices.IndexOf(secondInnerVoronoiVertex);
 
             Vector firstCircumInside, nextCircumInside, lastCircumInside;
 
@@ -357,14 +383,14 @@ namespace Astruk.Services
             }
             try {
 
-                firstCircumInside = point.voronoiVertices[v1];
-                lastCircumInside = point.voronoiVertices[v2];
+                firstCircumInside = point.VoronoiVertices[v1];
+                lastCircumInside = point.VoronoiVertices[v2];
             } catch (ArgumentOutOfRangeException) {
                 return false;
             }
 
-            int prevIndex = v1 - 1 < 0 ? point.voronoiVertices.Count - 1 : v1 - 1;
-            nextCircumInside = point.voronoiVertices[prevIndex];
+            int prevIndex = v1 - 1 < 0 ? point.VoronoiVertices.Count - 1 : v1 - 1;
+            nextCircumInside = point.VoronoiVertices[prevIndex];
 
             if (!CheckIfLineSegmentsIntersects(point, vertices[edge2], lastCircumInside, i2)) {
                 newList.Add(i1);
@@ -376,11 +402,11 @@ namespace Astruk.Services
                 int nextIndex = v2;
                 newList.Add(currentVertex);
                 while (currentVertex != firstCircumInside) {
-                    nextIndex = nextIndex == point.voronoiVertices.Count - 1 ? 0 : nextIndex + 1;
-                    currentVertex = point.voronoiVertices[nextIndex];
+                    nextIndex = nextIndex == point.VoronoiVertices.Count - 1 ? 0 : nextIndex + 1;
+                    currentVertex = point.VoronoiVertices[nextIndex];
                     newList.Add(currentVertex);
                 }
-                point.voronoiVertices = newList;
+                point.VoronoiVertices = newList;
                 return true;
             } else {
                 newList.Add(i2);
@@ -395,11 +421,11 @@ namespace Astruk.Services
 
                 newList.Add(currentVertex);
                 while (currentVertex != lastCircumInside) {
-                    nextIndex = nextIndex == point.voronoiVertices.Count - 1 ? 0 : nextIndex + 1;
-                    currentVertex = point.voronoiVertices[nextIndex];
+                    nextIndex = nextIndex == point.VoronoiVertices.Count - 1 ? 0 : nextIndex + 1;
+                    currentVertex = point.VoronoiVertices[nextIndex];
                     newList.Add(currentVertex);
                 }
-                point.voronoiVertices = newList;
+                point.VoronoiVertices = newList;
                 return true;
             }
 

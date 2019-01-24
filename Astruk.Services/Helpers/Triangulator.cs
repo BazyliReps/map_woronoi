@@ -1,4 +1,5 @@
 ﻿using Astruk.Common.Models;
+using Astruk.Services.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Astruk.Services.Helpers
 {
     class Triangulator
     {
-        public TestMap Triangulate(IEnumerable<DeluanVertex> KeyObjects)
+        public TriangulatedArea Triangulate(IEnumerable<DeluanVertex> KeyObjects)
         {
             var Hull = new LinkedList<Edge>();
             var Triangles = new List<Triangle>(100);
@@ -62,7 +63,7 @@ namespace Astruk.Services.Helpers
                     head = nextEdge;
                 }
             }
-            return new TestMap(Triangles, Points);
+            return new TriangulatedArea(Triangles, Points);
         }
 
         private void LegalizeEdges(List<Triangle> triangles, Triangle legalisedTriangle, LinkedList<Edge> hull)

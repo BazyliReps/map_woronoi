@@ -41,6 +41,7 @@ function sendAllData(allData) {
     let jsonData = JSON.stringify(allData);
     const url = "Home/LoadMap";
 
+    console.log(jsonData);
     console.log(allData);
 
     let jsonDiv = document.getElementById("hiddenData");
@@ -62,18 +63,11 @@ function sendAllData(allData) {
             context.clearRect(0, 0, canvas.width, canvas.height);
 
             console.log(returnData);
-            //DrawTriangles(returnData.triangles, context);
-            //DrawVertices(returnData.Vertices, context);
             let i = 0;
-            for (; i < returnData.points.length; i++) {
-                if (true) {
-                //if (!returnData.points[i].isExo) {
-
-                    DrawVoronoi(returnData.points[i].voronoiVertices, context);
-                }
+            for (; i < returnData.Regions.length; i++) {
+                DrawRegion(returnData.Regions[i], context);
             }
 
-            DrawKeyPoints(returnData.triangles, context);
         }
     })
 }
