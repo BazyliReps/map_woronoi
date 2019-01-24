@@ -1,4 +1,5 @@
-﻿
+﻿@Scripts.Render("~/bundles/parsingForm")
+
 <div class="row">
     <div id="map" class="col-md-8">
         <h2>Load map -></h2>
@@ -6,60 +7,44 @@
     <div class="col-md-4">
         <h2>Formularz</h2>
         <div class="panel panel-default">
-
             <!--DODAWANIE KONTURÓW-->
             <section class="container" style="padding: 30px">
                 <form>
-
                     <h3>Dodawanie punktu do konturów</h3>
-                    <input type="text" name="vertexX" id="vertexX" />
+                    <input type="text" name="vertexX" id="vertexX"/>
                     <label for="vertexX">pozycja X</label>
-                    <br />
-
-                    <input type="text" name="vertexY" id="vertexY" />
+                    <br/>
+                    <input type="text" name="vertexY" id="vertexY"/>
                     <label for="vertexY">pozycja Y</label>
-                    <br />
+                    <br/>
                 </form>
                 <button id="submitPoint" onclick="addVertex()">dodaj punkt do konturów</button>
             </section>
 
             <!--DODAWANIE PUNKTÓW KLUCZOWYCH-->
             <section class="container" style="padding: 30px">
-
                 <form>
-
                     <h3>Dodawanie punktu kluczowego</h3>
-                    <input type="text" name="keyX" id="keyX" />
+                    <input type="text" name="keyX" id="keyX"/>
                     <label for="keyX">pozycja X</label>
-                    <br />
-
-                    <input type="text" name="keyY" id="keyY" />
+                    <br/>
+                    <input type="text" name="keyY" id="keyY"/>
                     <label for="keyY">pozycja Y</label>
-                    <br />
-                    <input type="text" name="keyName" id="keyName" />
+                    <br/>
+                    <input type="text" name="keyName" id="keyName"/>
                     <label for="keyName">nazwa punktu</label>
-                    <br />
-
+                    <br/>
                 </form>
                 <button id="submitKeyPoint" onclick="addKeyPoint()">dodaj punkt specjalny</button>
-
             </section>
 
             <div id="mouse"></div>
-
-            <!--SKRYPTY-->
-
-            <script src="~/Scripts/index/MapClasses.js"></script>
-            <script src="~/Scripts/index/Parsing.js"></script>
-            <script src="~/Scripts/index/indexScript.js"></script>
-            <script src="~/Scripts/index/DrawTriangles.js"></script>
-
 
             <!--WCZYTYWANIE PLIKU-->
             <section style="padding: 30px">
                 <h3> Wczytaj plik z danymi:</h3>
                 <form>
-                    <input type="file" id="textFile" accept=".txt" name="textFile" onchange="readFile(event)" />
+                    <input type="file" id="textFile" accept=".txt" name="textFile" onchange="readFile(event)"/>
                 </form>
             </section>
 
@@ -67,34 +52,21 @@
             <section style="padding: 30px">
                 <h3> Wczytaj grafikę:</h3>
                 <form>
-                    <input type="file" id="imageUpload" accept=".gif,.jpg,.jpeg,.png" onchange="readImage(event)" />
+                    <input type="file" id="imageUpload" accept=".gif,.jpg,.jpeg,.png" onchange="readImage(event)"/>
                 </form>
-            </section>
-
-
-            <!--LISTA OBIEKTOW-->
-            <section class="container">
-                <nav class="navbar navbar-light bg-dark">
-                    <h3 class="text-light">lista obiektów na obszarze</h3>
-
-                </nav>
-                <button id="toggleObjectsViewButton" onclick="hide('objects')" style="display:none">pokaż/schowaj</button>
-                <div id="objects" style="display:block">
-                </div>
-
             </section>
 
             <!--TEST JSONA-->
             <section class="container">
-                <div id="hiddenData" style="display:none"></div>
+                <div id="hiddenData" style="display: none"></div>
             </section>
 
             <!--TEST CZYTANIA JSONA-->
             <div id="jsonread"></div>
-
         </div>
     </div>
 </div>
+
 <script>
     let allData = new AllData();
     let jsonVal = document.getElementById('hiddenData');

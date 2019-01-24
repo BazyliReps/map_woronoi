@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace Astruk.Common.Models
+﻿namespace Astruk.Common.Models
 {
     public class Vertex : Vector
     {

@@ -38,57 +38,49 @@ namespace Astruk.Controllers
 
 			if (Vertices != null)
 			{
-				foreach (var vertex in Vertices)
-				{
-					var v = new Vertex(vertex.X, vertex.Y);
-					vertices.Add(v);
-				}
+				vertices.AddRange(Vertices.Select(vertex => new Vertex(vertex.X, vertex.Y)));
 			}
 
 			if (KeyObjects != null)
 			{
-				foreach (var keyObject in KeyObjects)
-				{
-					keyObjects.Add(new KeyMapObject(keyObject.Id, keyObject.X, keyObject.Y, keyObject.Name));
-				}
+				keyObjects.AddRange(KeyObjects.Select(keyObject =>
+					new KeyMapObject(keyObject.Id, keyObject.X, keyObject.Y, keyObject.Name)));
 			}
 
 			foreach (var type in Types)
 			{
-				var Parameters = new List<KeyValuePair<string, string>>();
-				for (int i = 0; i < type.Keys.Count(); i++)
+				var parameters = new List<KeyValuePair<string, string>>();
+				for (var i = 0; i < type.Keys.Count(); i++)
 				{
-					Parameters.Add(new KeyValuePair<string, string>(type.Keys[i], type.Values[i]));
+					parameters.Add(new KeyValuePair<string, string>(type.Keys[i], type.Values[i]));
 				}
 
-				types.Add(new MapObjectType(type.Id, type.Name, Parameters));
+				types.Add(new MapObjectType(type.Id, type.Name, parameters));
 			}
 
 			if (Objects != null)
 			{
 				foreach (var obj in Objects)
 				{
-					var Parameters = new Dictionary<string, string>();
-					if (obj != null)
+					var parameters = new Dictionary<string, string>();
+					if (obj == null) continue;
+					var type = types.First(t => t.Name == obj.Type);
+					for (var i = 0; i < obj.Parameters.Count(); i++)
 					{
-						MapObjectType type = types.First(t => t.Name == obj.Type);
-						for (int i = 0; i < obj.Parameters.Count(); i++)
+						try
 						{
-							try
-							{
-								Parameters.Add(type.Parameters[i].Key, obj.Parameters[i]);
-							}
-							catch (ArgumentOutOfRangeException)
-							{
-							}
+							parameters.Add(type.Parameters[i].Key, obj.Parameters[i]);
 						}
-
-						objects.Add(new MapObject(obj.Id, type, Parameters));
+						catch (ArgumentOutOfRangeException)
+						{
+						}
 					}
+
+					objects.Add(new MapObject(obj.Id, type, parameters));
 				}
 			}
 
-			var map = MapService.GenerateMap(vertices, keyObjects, (IEnumerable<MapObjectType>) types, objects);
+			var map = MapService.GenerateMap(vertices, keyObjects, types, objects);
 
 			var model = new MapVm
 			{
@@ -110,7 +102,7 @@ namespace Astruk.Controllers
 			return PartialView(model);
 		}
 
-		private PointF VertexToPointF(Vertex vertex)
+		private static PointF VertexToPointF(Vertex vertex)
 		{
 			return new PointF((float) vertex.X, (float) vertex.Y);
 		}

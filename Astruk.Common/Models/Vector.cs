@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Astruk.Common.Models
 {
@@ -20,8 +15,8 @@ namespace Astruk.Common.Models
 
         public Vector(Vector v)
         {
-            this.X = v.X;
-            this.Y = v.Y;
+            X = v.X;
+            Y = v.Y;
         }
 
         public static Vector operator -(Vector v1, Vector v2)

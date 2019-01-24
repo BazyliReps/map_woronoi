@@ -1,9 +1,5 @@
 ﻿using Astruk.Common.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Astruk.Services.Helpers
 {
@@ -13,10 +9,10 @@ namespace Astruk.Services.Helpers
 
         public CoordsConstraints(IList<Vertex> Vertices)
         {
-            this.XMin = double.MaxValue;
-            this.XMax = -double.MaxValue;
-            this.YMin = double.MaxValue;
-            this.YMax = -double.MaxValue;
+            XMin = double.MaxValue;
+            XMax = -double.MaxValue;
+            YMin = double.MaxValue;
+            YMax = -double.MaxValue;
 
             foreach (var vertex in Vertices) {
                 if (vertex.X > XMax) {

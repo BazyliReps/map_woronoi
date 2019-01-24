@@ -18,6 +18,11 @@ namespace Astruk
 			bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(
 				"~/Scripts/modernizr-*"));
 
+			bundles.Add(new ScriptBundle("~/bundles/parsingForm").Include(
+				"~/Scripts/index/MapClasses.js",
+				"~/Scripts/index/Parsing.js",
+				"~/Scripts/index/indexScript.js"));
+
 			bundles.Add(new ScriptBundle("~/bundles/raphael").Include(
 				"~/Scripts/tippy.all.min.js",
 				"~/Scripts/raphael-min.js"));

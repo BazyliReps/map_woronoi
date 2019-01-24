@@ -19,9 +19,9 @@ namespace Astruk.Services.Models
 
         public Triangle(DeluanVertex p1, DeluanVertex p2, DeluanVertex p3)
         {
-            this.triangleNeighbours = new Triangle[3];
-            this.points = new DeluanVertex[3];
-            this.angles = new double[3];
+            triangleNeighbours = new Triangle[3];
+            points = new DeluanVertex[3];
+            angles = new double[3];
             points[0] = p1;
             points[1] = p2;
             points[2] = p3;
@@ -82,9 +82,9 @@ namespace Astruk.Services.Models
 
         private void FindCircumcenter()
         {
-            var p1 = this.points[0];
-            var p2 = this.points[1];
-            var p3 = this.points[2];
+            var p1 = points[0];
+            var p2 = points[1];
+            var p3 = points[2];
 
             double A = p2.X - p1.X,
              B = p2.Y - p1.Y,
@@ -96,7 +96,7 @@ namespace Astruk.Services.Models
             double x = (D * E - B * F) / G;
             double y = (A * F - C * E) / G;
 
-            this.circumcenter = new Vector(x, y);
+            circumcenter = new Vector(x, y);
 
         }
 

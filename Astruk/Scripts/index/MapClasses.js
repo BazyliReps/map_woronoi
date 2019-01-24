@@ -4,7 +4,6 @@
         this.Y = y;
         this.Id = -1;
     }
-
 }
 
 class KeyMapObject {
@@ -14,14 +13,12 @@ class KeyMapObject {
         this.Y = y;
         this.Name = name;
     }
-
 }
 
 class Pair {
     constructor(key, value) {
         this.key = value;
     }
-
 }
 
 class MapObjectType {
@@ -36,7 +33,6 @@ class MapObjectType {
         this.Keys.push(fieldName);
         this.Values.push(type);
     }
-
 }
 
 class MapObject {
@@ -49,7 +45,6 @@ class MapObject {
     addParameter(param) {
         this.Parameters.push(param);
     }
-
 }
 
 class AllData {
@@ -80,7 +75,4 @@ class AllData {
         if (object != undefined)
             this.Objects.push(object);
     }
-
-
-
 }
