@@ -19,11 +19,13 @@ namespace Astruk
 				"~/Scripts/modernizr-*"));
 
 			bundles.Add(new ScriptBundle("~/bundles/raphael").Include(
+				"~/Scripts/tippy.all.min.js",
 				"~/Scripts/raphael-min.js"));
 
 			bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
-				"~/Scripts/bootstrap.js",
-				"~/Scripts/respond.js"));
+				"~/Scripts/umd/popper.min.js",
+				"~/Scripts/bootstrap.min.js",
+				"~/Scripts/respond.min.js"));
 
 			bundles.Add(new StyleBundle("~/Content/css").Include(
 				"~/Content/bootstrap.css",

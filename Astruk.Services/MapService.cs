@@ -30,7 +30,7 @@ namespace Astruk.Services
 				new Vertex(5.75, 35.25)
 			}, new List<Region>
 			{
-				new Region(new KeyMapObject(1, 20, 20, "Dupa wołowa"), new List<Vertex>
+				new Region(new KeyMapObject(1, 30, 30, "Dupa wołowa"), new List<Vertex>
 				{
 					new Vertex(50, 45),
 					new Vertex(14.625, 24),
@@ -39,7 +39,20 @@ namespace Astruk.Services
 					new Vertex(85.875, 24.625),
 					new Vertex(70.5, 24.5),
 					new Vertex(61.875, 28.875)
-				}, new List<MapObject>()),
+				}, new List<MapObject>
+				{
+					new MapObject(1, new MapObjectType(1, "Dom", null), new Dictionary<string, string>
+					{
+						{"X","30"},
+						{"Y","20"},
+						{"L_MIESZKAŃCÓW","321"}
+					}),
+					new MapObject(1, new MapObjectType(2, "Krowa", null), new Dictionary<string, string>
+					{
+						{"X","40"},
+						{"Y","30"},
+					})
+				}),
 				new Region(new KeyMapObject(2, 70, 35, "Świński ogon"), new List<Vertex>
 				{
 					new Vertex(50, 45),
@@ -50,7 +63,21 @@ namespace Astruk.Services
 					new Vertex(89.875, 58.125),
 					new Vertex(80.375, 68.5),
 					new Vertex(56, 75.375)
-				}, new List<MapObject>()),
+				}, new List<MapObject>
+				{
+					new MapObject(1, new MapObjectType(1, "Krowa", null), new Dictionary<string, string>
+					{
+						{"X","70"},
+						{"Y","40"},
+						{"L_MIESZKAŃCÓW","321"}
+					}),
+					new MapObject(1, new MapObjectType(2, "Krowa", null), new Dictionary<string, string>
+					{
+						{"X","76"},
+						{"Y","30"},
+						{"L_MIESZKAŃCÓW","29"}
+					})
+				}),
 				new Region(new KeyMapObject(3, 25, 60, "Pasztet króliczy"), new List<Vertex>
 				{
 					new Vertex(50, 45),

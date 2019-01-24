@@ -4,14 +4,19 @@
 
 <div id="raphael-map"></div>
 
+<style>
+    path { outline: none; }
+</style>
+
 <script>
 
     var style = {
         fill: "#ddd",
+        "fill-opacity": "0.4",
         stroke: "#aaa",
         "stroke-width": 0.5,
         "stroke-linejoin": "round",
-        cursor: "pointer"
+        cursor: "pointer",
     };
 
     var animationSpeed = 500;
@@ -20,34 +25,51 @@
     }
 
     var map = Raphael("raphael-map", "100%", "100%");
-    map.setViewBox(@(Model.Vertices.Min(x => x.X)-2),
-        @(Model.Vertices.Min(x => x.Y)-2),
+    map.setViewBox(@(Model.Vertices.Min(x => x.X) - 2),
+        @(Model.Vertices.Min(x => x.Y) - 2),
         @Model.Vertices.Max(x => x.X),
         @Model.Vertices.Max(x => x.Y));
-
-
-    //Whole map, not really needed
-    //map.path("m @Model.Vertices.Select(x => $"{x.X},{x.Y}").JoinStrings(" L ") z");
 
     var regions = {};
 
     @foreach (var region in Model.Regions)
     {
         @:regions["@region.KeyObject.Name"] = map.path("m @region.Vertices.Select(x => $"{x.X},{x.Y}").JoinStrings(" L ") z");
-        @:map.circle(@region.KeyObject.X, @region.KeyObject.Y, 1).attr({fill: "#ff0000", stroke: "#ff0000"});
+        @:var tippyContent = "<h5>@region.KeyObject.Name</h5>" + "<h6>Population: @region.Objects.Sum(x => int.Parse(x.Parameters.ContainsKey("L_MIESZKAŃCÓW") ? x.Parameters["L_MIESZKAŃCÓW"] : "0"))</h6>";
+
+        foreach (var objects in region.Objects.GroupBy(x => x.Type))
+        {
+            var id = (region.KeyObject.Name+"-"+objects.Key).Replace(' ', '_');
+            @:tippyContent += "<a class='btn text-dark' type='button' data-toggle='collapse' data-target='#@id'>@objects.Key</a>";
+            @:tippyContent += "<ul style='list-style-type: none' id='@id' class='collapse'>";
+            foreach (var mapObject in objects)
+            {
+                if (mapObject.Position.HasValue)
+                {
+                    @:map.circle(@mapObject.Position.Value.X, @mapObject.Position.Value.Y, 0.5).attr({ fill: "#555555", stroke: "#555555" });
+                    @:tippyContent += "<li>@Html.DisplayFor(x=>mapObject.Parameters)</li>";
+                }
+            }
+            @:tippyContent += "</ul>";
+        }
+        @:tippy(regions["@region.KeyObject.Name"][0], { interactive: true, trigger: "click", placement: "right", content: tippyContent });
+        @:map.circle(@region.KeyObject.Position.X, @region.KeyObject.Position.Y, 1).attr({ fill: "#ff0000", stroke: "#ff0000" });
     }
 
-    for(var regionName in regions) {
-        (function (region) {
+    for (var regionName in regions) {
+        (function(region) {
             region.attr(style);
+            region[0].addEventListener("mouseover",
+                function() {
+                    region.animate(hoverStyle, animationSpeed);
+                },
+                true);
 
-            region[0].addEventListener("mouseover", function() {
-                region.animate(hoverStyle, animationSpeed);
-            }, true);
-
-            region[0].addEventListener("mouseout", function() {
-                region.animate(style, animationSpeed);
-            }, true);
+            region[0].addEventListener("mouseout",
+                function() {
+                    region.animate(style, animationSpeed);
+                },
+                true);
 
         })(regions[regionName]);
     }

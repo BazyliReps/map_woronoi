@@ -1,9 +1,10 @@
-﻿namespace Astruk.ViewModels
+﻿using System.Drawing;
+
+namespace Astruk.ViewModels
 {
 	public class KeyMapObjectVm
 	{
-		public double X { get; set; }
-		public double Y { get; set; }
+		public PointF Position { get; set; }
 		public string Name { get; set; }
 	}
 }

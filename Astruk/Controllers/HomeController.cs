@@ -37,7 +37,13 @@ namespace Astruk.Controllers
 				Regions = map.Regions.Select(x => new RegionVm
 				{
 					Vertices = x.Vertices.Select(VertexToPointF).ToList(),
-					KeyObject = new KeyMapObjectVm {Name = x.KeyObject.Name, X = x.KeyObject.X, Y = x.KeyObject.Y}
+					KeyObject = new KeyMapObjectVm
+						{Name = x.KeyObject.Name, Position = new PointF((float) x.KeyObject.X, (float) x.KeyObject.Y)},
+					Objects = x.Objects.Select(o=>new MapObjectVm
+					{
+						Type = o.Type.Name,
+						Parameters = o.Parameters
+					})
 				})
 			};
 
