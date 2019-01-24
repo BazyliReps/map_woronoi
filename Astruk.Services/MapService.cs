@@ -33,16 +33,14 @@ namespace Astruk.Services
 				deluanVertex.GetVoronoiVerticesAsVertex(), deluanVertex.Objects)).ToList();
 		}
 
-		private void AssignObjectsToDeluanVertices(IEnumerable<MapObject> Objects, IList<DeluanVertex> RegionCenters)
+		private static void AssignObjectsToDeluanVertices(IEnumerable<MapObject> objects,
+			IList<DeluanVertex> regionCenters)
 		{
-			DeluanVertex closestRegion = null;
-			double distance;
-			double minDistance;
-			foreach (var currentObject in Objects)
+			foreach (var currentObject in objects)
 			{
-				closestRegion = null;
-				minDistance = double.MaxValue;
-				foreach (var region in RegionCenters)
+				DeluanVertex closestRegion = null;
+				var minDistance = double.MaxValue;
+				foreach (var region in regionCenters)
 				{
 					if (!currentObject.Parameters.TryGetValue("x", out var xString))
 					{
@@ -54,46 +52,37 @@ namespace Astruk.Services
 						currentObject.Parameters.TryGetValue("Y", out yString);
 					}
 
-					if (Double.TryParse(xString, out var x) && double.TryParse(yString, out var y))
+					if (double.TryParse(xString, out var x) && double.TryParse(yString, out var y))
 					{
-						distance = Math.Sqrt((region.X - x) * (region.X - x) + (region.Y - x) * (region.Y - y));
-						if (distance < minDistance)
-						{
-							minDistance = distance;
-							closestRegion = region;
-						}
-					}
-					else
-					{
-						continue;
+						var distance = Math.Sqrt((region.X - x) * (region.X - x) + (region.Y - x) * (region.Y - y));
+						if (!(distance < minDistance)) continue;
+						minDistance = distance;
+						closestRegion = region;
 					}
 				}
 
-				if (closestRegion != null)
-				{
-					closestRegion.Objects.Add(currentObject);
-				}
+				closestRegion?.Objects.Add(currentObject);
 			}
 		}
 
-		private void SetBordersClockwise(ref IList<Vertex> Vertices)
+		private void SetBordersClockwise(ref IList<Vertex> vertices)
 		{
 			double det = 0;
-			for (var i = 0; i < Vertices.Count - 1; i++)
+			for (var i = 0; i < vertices.Count - 1; i++)
 			{
-				var v1 = Vertices[i];
-				var v2 = Vertices[i + 1];
+				var v1 = vertices[i];
+				var v2 = vertices[i + 1];
 				det += (v2.X - v1.X) * (v2.Y + v1.Y);
 			}
 
 			if (!(det > 0)) return;
 			var newList = new List<Vertex>();
-			for (var i = 0; i < Vertices.Count; i++)
+			for (var i = 0; i < vertices.Count; i++)
 			{
-				newList.Add(Vertices[Vertices.Count - i - 1]);
+				newList.Add(vertices[vertices.Count - i - 1]);
 			}
 
-			Vertices = newList;
+			vertices = newList;
 		}
 
 		private void InitVoronoiCreation(IList<Triangle> allTriangles)
@@ -221,16 +210,16 @@ namespace Astruk.Services
 						{
 							for (var i = 0; i < 3; i++)
 							{
-								nextTriangle = currentTriangle.triangleNeighbours[i];
+								nextTriangle = currentTriangle?.triangleNeighbours[i];
 								if (nextTriangle != null && i == Array.IndexOf(currentTriangle.points, deluanVertex))
 								{
 									break;
 								}
 							}
 
-							if (IsWithinBorders(currentTriangle.circumcenter, mapConstraints))
+							if (IsWithinBorders(currentTriangle?.circumcenter, mapConstraints))
 							{
-								deluanVertex.VoronoiVertices.Add(currentTriangle.circumcenter);
+								deluanVertex.VoronoiVertices.Add(currentTriangle?.circumcenter);
 							}
 							else
 							{
@@ -238,28 +227,23 @@ namespace Astruk.Services
 								{
 									if (foundFirstExoLine)
 									{
-										if (CheckIfLineSegmentsIntersects(currentTriangle.circumcenter,
-											deluanVertex.VoronoiVertices.Last()
-											, borders[i], borders[i == 3 ? 0 : i + 1],
-											ref intersection2, out isOnRight))
-										{
-											deluanVertex.VoronoiVertices.Add(new Vector(intersection2));
-											secondIntersectedEdgeId = i;
-											break;
-										}
+										if (!CheckIfLineSegmentsIntersects(currentTriangle?.circumcenter,
+											deluanVertex.VoronoiVertices.Last(), borders[i],
+											borders[i == 3 ? 0 : i + 1],
+											ref intersection2, out isOnRight)) continue;
+										deluanVertex.VoronoiVertices.Add(new Vector(intersection2));
+										secondIntersectedEdgeId = i;
+										break;
 									}
-									else if (currentTriangle != endTriangle)
-									{
-										if (CheckIfLineSegmentsIntersects(currentTriangle.circumcenter,
-											nextTriangle.circumcenter, borders[i], borders[i == 3 ? 0 : i + 1],
-											ref intersection1, out isOnRight))
-										{
-											deluanVertex.VoronoiVertices.Add(new Vector(intersection1));
-											firstIntersectedEdgeId = i;
-											foundFirstExoLine = true;
-											break;
-										}
-									}
+
+									if (currentTriangle == endTriangle) continue;
+									if (!CheckIfLineSegmentsIntersects(currentTriangle?.circumcenter,
+										nextTriangle?.circumcenter, borders[i], borders[i == 3 ? 0 : i + 1],
+										ref intersection1, out isOnRight)) continue;
+									deluanVertex.VoronoiVertices.Add(new Vector(intersection1));
+									firstIntersectedEdgeId = i;
+									foundFirstExoLine = true;
+									break;
 								}
 							}
 
@@ -378,36 +362,34 @@ namespace Astruk.Services
 					var nextJ = j == vertices.Count - 1 ? 0 : j + 1;
 					Vector v2 = vertices[nextJ];
 
-					if (CheckIfLineSegmentsIntersects(currentVoronoiVertex, nextVoronoiVertex, v1, v2, ref intersection,
-						out var isFirstInside))
+					if (!CheckIfLineSegmentsIntersects(currentVoronoiVertex, nextVoronoiVertex, v1, v2,
+						ref intersection, out var isFirstInside)) continue;
+					intersectionsFound++;
+					idsOfEdges.Add(j);
+					if (isFirstInside)
 					{
-						intersectionsFound++;
-						idsOfEdges.Add(j);
-						if (isFirstInside)
+						if (foundIntersections.Count == 0)
 						{
-							if (foundIntersections.Count == 0)
-							{
-								suspectedOfBeingOutside.Clear();
-							}
-
-							innerVoronoiVertices.Add(currentVoronoiVertex);
-							outsideBorders = true;
-							timesFirstInside++;
-						}
-						else
-						{
-							innerVoronoiVertices.Add(nextVoronoiVertex);
-							if (!toRemove.Contains(currentVoronoiVertex))
-							{
-								toRemove.Add(currentVoronoiVertex);
-							}
-
-							outsideBorders = false;
-							timesSecondInside++;
+							suspectedOfBeingOutside.Clear();
 						}
 
-						foundIntersections.Add(new Vector(intersection));
+						innerVoronoiVertices.Add(currentVoronoiVertex);
+						outsideBorders = true;
+						timesFirstInside++;
 					}
+					else
+					{
+						innerVoronoiVertices.Add(nextVoronoiVertex);
+						if (!toRemove.Contains(currentVoronoiVertex))
+						{
+							toRemove.Add(currentVoronoiVertex);
+						}
+
+						outsideBorders = false;
+						timesSecondInside++;
+					}
+
+					foundIntersections.Add(new Vector(intersection));
 				}
 
 				if (timesFirstInside > timesSecondInside)
@@ -441,7 +423,8 @@ namespace Astruk.Services
 			}
 		}
 
-		private bool FixBorders(DeluanVertex point, IList<Vertex> vertices, Vector intersection1, Vector intersection2,
+		private static bool FixBorders(DeluanVertex point, IList<Vertex> vertices, Vector intersection1,
+			Vector intersection2,
 			int edgeId1, int edgeId2, Vector firstInnerVoronoiVertex, Vector secondInnerVoronoiVertex,
 			bool IsOuterRegion)
 		{
@@ -452,7 +435,8 @@ namespace Astruk.Services
 			var firstInnerVoronoiVertexId = point.VoronoiVertices.IndexOf(firstInnerVoronoiVertex);
 			var secondInnerVoronoiVertexId = point.VoronoiVertices.IndexOf(secondInnerVoronoiVertex);
 
-			Vector firstCircumInside, nextCircumInside, lastCircumInside;
+			Vector firstCircumInside;
+			Vector lastCircumInside;
 
 			int edge1 = edgeId1,
 				edge2 = edgeId2,
@@ -481,7 +465,6 @@ namespace Astruk.Services
 			}
 
 			var prevIndex = v1 - 1 < 0 ? point.VoronoiVertices.Count - 1 : v1 - 1;
-			nextCircumInside = point.VoronoiVertices[prevIndex];
 
 			if (!CheckIfLineSegmentsIntersects(point, vertices[edge2], lastCircumInside, i2))
 			{
@@ -535,7 +518,7 @@ namespace Astruk.Services
 		private bool CheckIfLineSegmentsIntersects(Vector start, Vector end, Vector edgeStart, Vector edgeEnd,
 			ref Vector intersection, out bool firstOnRight)
 		{
-			var nullOffset = 0.00000001;
+			const double nullOffset = 0.00000001;
 			var r = end - start;
 			var s = edgeEnd - edgeStart;
 			var product = r * s;
@@ -546,15 +529,7 @@ namespace Astruk.Services
 				if (t >= 0 && t <= 1 && u >= 0 && u <= 1)
 				{
 					intersection = start + t * r;
-					if (IsOnRight(edgeStart, edgeEnd, start))
-					{
-						firstOnRight = true;
-					}
-					else
-					{
-						firstOnRight = false;
-					}
-
+					firstOnRight = IsOnRight(edgeStart, edgeEnd, start);
 					return true;
 				}
 			}
@@ -563,34 +538,30 @@ namespace Astruk.Services
 			return false;
 		}
 
-		private bool IsOnRight(Vector edgeVertex1, Vector edgeVertex2, Vector checkedPoint)
+		private static bool IsOnRight(Vector edgeVertex1, Vector edgeVertex2, Vector checkedPoint)
 		{
 			return (checkedPoint.X - edgeVertex1.X) * (edgeVertex2.Y - edgeVertex1.Y) -
 			       (edgeVertex2.X - edgeVertex1.X) * (checkedPoint.Y - edgeVertex1.Y) < 0;
 		}
 
-		private bool CheckIfLineSegmentsIntersects(Vector p, Vector pr, Vector q, Vector qs)
+		private static bool CheckIfLineSegmentsIntersects(Vector p, Vector pr, Vector q, Vector qs)
 		{
 			var nullOffset = 0.00000001;
 			var r = pr - p;
 			var s = qs - q;
 			var product = r * s;
-			if (Math.Abs(product) > nullOffset)
-			{
-				var t = ((q - p) * s) / product;
-				var u = ((q - p) * r) / product;
-				if (t >= 0 && t <= 1 && u >= 0 && u <= 1)
-				{
-					return true;
-				}
-			}
-
-			return false;
+			if (!(Math.Abs(product) > nullOffset)) return false;
+			var t = ((q - p) * s) / product;
+			var u = ((q - p) * r) / product;
+			return t >= 0 && t <= 1 && u >= 0 && u <= 1;
 		}
 
 		private CoordsConstraints MakeLineConstraints(Triangle triangle, Vector normalPoint, int vertexIndex)
 		{
-			double XMin, XMax, YMin, YMax;
+			double xMin;
+			double xMax;
+			double yMin;
+			double yMax;
 
 			var oppositeVertexId = vertexIndex == 0 ? 2 : vertexIndex - 1;
 			var angle = triangle.GetAngleOnVertex(oppositeVertexId);
@@ -601,32 +572,32 @@ namespace Astruk.Services
 			{
 				if (normalPoint.X > triangle.circumcenter.X)
 				{
-					XMin = -double.MaxValue;
-					XMax = triangle.circumcenter.X;
+					xMin = -double.MaxValue;
+					xMax = triangle.circumcenter.X;
 					if (normalPoint.Y > triangle.circumcenter.Y)
 					{
-						YMin = -double.MaxValue;
-						YMax = triangle.circumcenter.Y;
+						yMin = -double.MaxValue;
+						yMax = triangle.circumcenter.Y;
 					}
 					else
 					{
-						YMin = triangle.circumcenter.Y;
-						YMax = double.MaxValue;
+						yMin = triangle.circumcenter.Y;
+						yMax = double.MaxValue;
 					}
 				}
 				else
 				{
-					XMin = triangle.circumcenter.X;
-					XMax = double.MaxValue;
+					xMin = triangle.circumcenter.X;
+					xMax = double.MaxValue;
 					if (normalPoint.Y > triangle.circumcenter.Y)
 					{
-						YMin = -double.MaxValue;
-						YMax = triangle.circumcenter.Y;
+						yMin = -double.MaxValue;
+						yMax = triangle.circumcenter.Y;
 					}
 					else
 					{
-						YMin = triangle.circumcenter.Y;
-						YMax = double.MaxValue;
+						yMin = triangle.circumcenter.Y;
+						yMax = double.MaxValue;
 					}
 				}
 			}
@@ -634,86 +605,86 @@ namespace Astruk.Services
 			{
 				if (normalPoint.X > triangle.circumcenter.X)
 				{
-					XMin = triangle.circumcenter.X;
-					XMax = double.MaxValue;
+					xMin = triangle.circumcenter.X;
+					xMax = double.MaxValue;
 					if (normalPoint.Y > triangle.circumcenter.Y)
 					{
-						YMin = triangle.circumcenter.Y;
-						YMax = double.MaxValue;
+						yMin = triangle.circumcenter.Y;
+						yMax = double.MaxValue;
 					}
 					else
 					{
-						YMin = -double.MaxValue;
-						YMax = triangle.circumcenter.Y;
+						yMin = -double.MaxValue;
+						yMax = triangle.circumcenter.Y;
 					}
 				}
 				else
 				{
-					XMin = -double.MaxValue;
-					XMax = triangle.circumcenter.X;
+					xMin = -double.MaxValue;
+					xMax = triangle.circumcenter.X;
 					if (normalPoint.Y > triangle.circumcenter.Y)
 					{
-						YMin = triangle.circumcenter.Y;
-						YMax = double.MaxValue;
+						yMin = triangle.circumcenter.Y;
+						yMax = double.MaxValue;
 					}
 					else
 					{
-						YMin = -double.MaxValue;
-						YMax = triangle.circumcenter.Y;
+						yMin = -double.MaxValue;
+						yMax = triangle.circumcenter.Y;
 					}
 				}
 			}
 
-			return new CoordsConstraints(XMin, XMax, YMin, YMax);
+			return new CoordsConstraints(xMin, xMax, yMin, yMax);
 		}
 
-		private bool IsPointInDomain(Vector intersectionPoint, Vector startBorderVertex, Vector endBorderVertex,
+		private static bool IsPointInDomain(Vector intersectionPoint, Vector startBorderVertex, Vector endBorderVertex,
 			CoordsConstraints c)
 		{
 			var firstLower = startBorderVertex.X < endBorderVertex.X;
-			var XMin = firstLower ? startBorderVertex.X : endBorderVertex.X;
-			var XMax = firstLower ? endBorderVertex.X : startBorderVertex.X;
+			var xMin = firstLower ? startBorderVertex.X : endBorderVertex.X;
+			var xMax = firstLower ? endBorderVertex.X : startBorderVertex.X;
 
 			firstLower = startBorderVertex.Y < endBorderVertex.Y;
-			var YMin = firstLower ? startBorderVertex.Y : endBorderVertex.Y;
-			var YMax = firstLower ? endBorderVertex.Y : startBorderVertex.Y;
+			var yMin = firstLower ? startBorderVertex.Y : endBorderVertex.Y;
+			var yMax = firstLower ? endBorderVertex.Y : startBorderVertex.Y;
 
-			var horizontalParallel = YMin == YMax;
-			var verticalParallel = XMin == XMax;
+			var horizontalParallel = yMin == yMax;
+			var verticalParallel = xMin == xMax;
 
 
 			var isInDomain = intersectionPoint.X >= c.XMin
-			                 && (intersectionPoint.X >= XMin || verticalParallel)
+			                 && (intersectionPoint.X >= xMin || verticalParallel)
 			                 && intersectionPoint.X <= c.XMax
-			                 && (intersectionPoint.X <= XMax || verticalParallel)
+			                 && (intersectionPoint.X <= xMax || verticalParallel)
 			                 && intersectionPoint.Y >= c.YMin
-			                 && (intersectionPoint.Y >= YMin || horizontalParallel)
+			                 && (intersectionPoint.Y >= yMin || horizontalParallel)
 			                 && intersectionPoint.Y <= c.YMax
-			                 && (intersectionPoint.Y <= YMax || horizontalParallel);
+			                 && (intersectionPoint.Y <= yMax || horizontalParallel);
 			return isInDomain;
 		}
 
 		private Vector GetIntersectionPoint(Vector start1, Vector end1, Vector start2, Vector end2)
 		{
-			var nullOffset = 0.00001;
+			const double nullOffset = 0.00001;
 
-			var A1 = end1.Y - start1.Y;
-			var B1 = start1.X - end1.X;
-			var C1 = start1.X * A1 + start1.Y * B1;
+			var a1 = end1.Y - start1.Y;
+			var b1 = start1.X - end1.X;
+			var c1 = start1.X * a1 + start1.Y * b1;
 
-			var A2 = end2.Y - start2.Y;
-			var B2 = start2.X - end2.X;
-			var C2 = start2.X * A2 + start2.Y * B2;
+			var a2 = end2.Y - start2.Y;
+			var b2 = start2.X - end2.X;
+			var c2 = start2.X * a2 + start2.Y * b2;
 
-			var det = A1 * B2 - A2 * B1;
+			var det = a1 * b2 - a2 * b1;
 
 			if (Math.Abs(det) < nullOffset)
 			{
 				throw new ArgumentException("linie równoległe");
 			}
 
-			var x = (B2 * C1 - B1 * C2) / det;
-			var y = (A1 * C2 - A2 * C1) / det;
+			var x = (b2 * c1 - b1 * c2) / det;
+			var y = (a1 * c2 - a2 * c1) / det;
 
 			return new Vector(x, y);
 		}
