@@ -1,11 +1,4 @@
-﻿var keyPointXform = document.getElementById("keyX");
-var keyPointYform = document.getElementById("keyY");
-var keyPointNameForm = document.getElementById("keyName");
-
-var vertexXform = document.getElementById("vertexX");
-var vertexYform = document.getElementById("vertexY");
-
-function clearForms() {
+﻿function clearForms() {
     const forms = document.getElementsByTagName("input");
     var i = 0;
     for (; i < forms.length; i++) {
@@ -24,8 +17,8 @@ function sendAllData(allData) {
 }
 
 function addVertex() {
-    const xValue = vertexXform.value * 1;
-    const yValue = vertexYform.value * 1;
+    const xValue = document.getElementById("vertexX").value * 1;
+    const yValue = document.getElementById("vertexY").value * 1;
     const hiddenData = document.getElementById("hiddenData");
 
     const allData = JSON.parse(hiddenData.textContent);
@@ -38,17 +31,15 @@ function addVertex() {
 
     console.log(allData);
 
-    fillObjectsList(allData);
     sendAllData(allData);
     clearForms();
-    drawData(allData, true);
 }
 
 function addKeyPoint() {
 
-    const xValue = keyPointXform.value * 1;
-    const yValue = keyPointYform.value * 1;
-    const name = keyPointNameForm.value;
+    const xValue = document.getElementById("keyX").value * 1;
+    const yValue = document.getElementById("keyY").value * 1;
+    const name = document.getElementById("keyName").value;
     const hiddenData = document.getElementById("hiddenData");
 
     const allData = JSON.parse(hiddenData.textContent);
@@ -59,10 +50,8 @@ function addKeyPoint() {
 
     allData.KeyObjects.push(newKeyPoint);
 
-    fillObjectsList(allData);
     sendAllData(allData);
     clearForms();
-    drawData(allData, false);
 }
 
 function readFile(evt) {
@@ -95,41 +84,6 @@ function getPositionId(object) {
     }
 }
 
-function fillObjectsList(allData) {
-    const objectsDisplay = document.getElementById("objects");
-    const objectList = allData.Objects;
-    var output = "<ul>";
-    for (i = 0; i < objectList.length; i++) {
-        const currentObject = objectList[i];
-        const currentObjectType = getType(allData, currentObject.Type);
-        const divId = currentObject.Id + currentObject.Type;
-
-        output += makeObjectListElementOpening(divId);
-        output += "Id: ";
-        output += currentObject.Id + " ";
-
-        output += "Typ: ";
-        output += currentObject.Type + " ";
-        let j = 0;
-        output += makeParametersListOpening(divId);
-        for (; j < currentObject.Parameters.length; j++) {
-            output += "<li>" + currentObjectType.Parameters[j].Name + ": " + currentObject.Parameters[j] + "</li>";
-        }
-        output += "</ul>";
-
-        output += "</li>";
-    }
-    objectsDisplay.insertAdjacentHTML("beforeend", output);
-}
-
-function makeObjectListElementOpening(divId) {
-    return "<li id=\"" + divId + "\"  onclick=\"hide('" + divId + "parameters')\">";
-}
-
-function makeParametersListOpening(divId) {
-    return "<ul id=\"" + divId + "parameters\" style=\"display:none\">";
-}
-
 function hide(id) {
     const elem = document.getElementById(id);
     if (elem.style.display === "block") {
@@ -137,11 +91,6 @@ function hide(id) {
     } else {
         elem.style.display = "block";
     }
-}
-
-function showToggleObjectsViewButton() {
-    const button = document.getElementById("toggleObjectsViewButton");
-    button.style.display = "block";
 }
 
 function clearData() {
