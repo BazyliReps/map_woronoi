@@ -1,27 +1,20 @@
-﻿
-
-
-
-var keyPointXform = document.getElementById("keyX");
+﻿var keyPointXform = document.getElementById("keyX");
 var keyPointYform = document.getElementById("keyY");
 var keyPointNameForm = document.getElementById("keyName");
 
 var vertexXform = document.getElementById("vertexX");
 var vertexYform = document.getElementById("vertexY");
 
-
-
-
 function clearForms() {
-    let forms = document.getElementsByTagName('input');
-    let i = 0;
+    var forms = document.getElementsByTagName('input');
+    var i = 0;
     for (; i < forms.length; i++) {
         forms[i].value = '';
     }
 }
 
 function getMousePos(canvas, evt) {
-    let context = canvas.getContext("2d");
+    var context = canvas.getContext("2d");
     var rect = canvas.getBoundingClientRect();
     return {
         x: evt.clientX - rect.left,
@@ -38,55 +31,29 @@ function draw(evt, canvas) {
 
 //POST
 function sendAllData(allData) {
-    let jsonData = JSON.stringify(allData);
-    const url = "Home/LoadMap";
+    var jsonData = JSON.stringify(allData);
+    var url = "Home/_LoadMap";
 
-    console.log(jsonData);
-    console.log(allData);
-
-    let jsonDiv = document.getElementById("hiddenData");
+    var jsonDiv = document.getElementById("hiddenData");
     jsonDiv.insertAdjacentHTML('beforeend', jsonData);
 
-
-
-    $.ajax({
-        url: url,
-        type: "POST",
-        data: jsonData,
-        contentType: "application/json; charset = utf-8",
-        dataType: "json",
-        success: function (returnData) {
-            let canvas = document.getElementById("imageDiv").childNodes[0];
-            var context = canvas.getContext("2d");
-            let mouse = document.getElementById("mouse");
-            mouse.addEventListener("mousemove", draw);
-            context.clearRect(0, 0, canvas.width, canvas.height);
-
-            console.log(returnData);
-            let i = 0;
-            for (; i < returnData.Regions.length; i++) {
-                DrawRegion(returnData.Regions[i], context);
-            }
-
-        }
-    })
+    $("#map").load(url, jsonData);
 }
 
 
 function addVertex() {
 
-    let xValue = vertexXform.value * 1;
-    let yValue = vertexYform.value * 1;
-    let hiddenData = document.getElementById('hiddenData');
+    var xValue = vertexXform.value * 1;
+    var yValue = vertexYform.value * 1;
+    var hiddenData = document.getElementById('hiddenData');
 
-
-    let allData = JSON.parse(hiddenData.textContent);
+    var allData = JSON.parse(hiddenData.textContent);
     clearData();
 
 
-    let newId = allData.Vertices.length + 1;
+    var newId = allData.Vertices.length + 1;
 
-    let newVertex = new Vertex(newId, xValue, yValue);
+    var newVertex = new Vertex(newId, xValue, yValue);
     allData.Vertices.push(newVertex);
 
     console.log(allData);
@@ -95,24 +62,22 @@ function addVertex() {
     sendAllData(allData);
     clearForms();
     drawData(allData, true);
-
 }
 
 function addKeyPoint() {
 
-    let xValue = keyPointXform.value * 1;
-    let yValue = keyPointYform.value * 1;
-    let name = keyPointNameForm.value;
-    let hiddenData = document.getElementById('hiddenData');
+    var xValue = keyPointXform.value * 1;
+    var yValue = keyPointYform.value * 1;
+    var name = keyPointNameForm.value;
+    var hiddenData = document.getElementById('hiddenData');
 
 
-    let allData = JSON.parse(hiddenData.textContent);
+    var allData = JSON.parse(hiddenData.textContent);
     clearData();
 
 
-
-    let newId = allData.KeyObjects.length + 1;
-    let newKeyPoint = new KeyMapObject(newId, xValue, yValue, name);
+    var newId = allData.KeyObjects.length + 1;
+    var newKeyPoint = new KeyMapObject(newId, xValue, yValue, name);
 
     allData.KeyObjects.push(newKeyPoint);
 
@@ -127,24 +92,24 @@ function addKeyPoint() {
 
 function readFile(evt) {
     clearData();
-    let input = evt.target;
-    let reader = new FileReader();
+    var input = evt.target;
+    var reader = new FileReader();
     reader.onload = parseFile;
 
     reader.readAsText(input.files[0], "UTF-8");
 }
 
 function readImage(evt) {
-    let imageDiv = document.getElementById("imageDiv");
-    let imgSrc = document.getElementById("imgSrc");
-    let image = new Image();
+    var imageDiv = document.getElementById("imageDiv");
+    var imgSrc = document.getElementById("imgSrc");
+    var image = new Image();
 
-    let hiddenData = document.getElementById('hiddenData');
-    let allData = JSON.parse(hiddenData.textContent);
+    var hiddenData = document.getElementById('hiddenData');
+    var allData = JSON.parse(hiddenData.textContent);
 
     image.src = URL.createObjectURL(evt.target.files[0]);
     imgSrc.innerHTML = image.src;
-    image.onload = function () {
+    image.onload = function() {
         var canvas = imageDiv.childNodes[0];
         var g = canvas.getContext("2d");
         g.fillStyle = "white";
@@ -155,9 +120,9 @@ function readImage(evt) {
 }
 
 function getPositionId(object) {
-    let allData = JSON.parse(document.getElementById("hiddenData").textContent);
-    let mapObjectType = getType(allData, object.Type);
-    let i = 0;
+    var allData = JSON.parse(document.getElementById("hiddenData").textContent);
+    var mapObjectType = getType(allData, object.Type);
+    var i = 0;
     for (; i < mapObjectType.Parameters.length; i++) {
         if (mapObjectType.Parameters[i].Name === "X") {
             return i;
@@ -169,11 +134,11 @@ function getPositionId(object) {
 function fillObjectsList(allData) {
     var objectsDisplay = document.getElementById("objects");
     var objectList = allData.Objects;
-    let output = "<ul>";
+    var output = "<ul>";
     for (i = 0; i < objectList.length; i++) {
-        let currentObject = objectList[i];
-        let currentObjectType = getType(allData, currentObject.Type);
-        let divId = currentObject.Id + currentObject.Type;
+        var currentObject = objectList[i];
+        var currentObjectType = getType(allData, currentObject.Type);
+        var divId = currentObject.Id + currentObject.Type;
 
         output += makeObjectListElementOpening(divId);
         output += "Id: ";
@@ -181,7 +146,7 @@ function fillObjectsList(allData) {
 
         output += "Typ: ";
         output += currentObject.Type + " ";
-        let j = 0;
+        var j = 0;
         output += makeParametersListOpening(divId);
         for (; j < currentObject.Parameters.length; j++) {
             output += "<li>" + currentObjectType.Parameters[j].Name + ": " + currentObject.Parameters[j] + "</li>";
@@ -202,9 +167,8 @@ function makeParametersListOpening(divId) {
 }
 
 
-
 function hide(id) {
-    let elem = document.getElementById(id);
+    var elem = document.getElementById(id);
     if (elem.style.display == "block") {
         elem.style.display = "none";
     } else {
@@ -213,14 +177,13 @@ function hide(id) {
 }
 
 function showToggleObjectsViewButton() {
-    let button = document.getElementById("toggleObjectsViewButton");
+    var button = document.getElementById("toggleObjectsViewButton");
     button.style.display = "block";
 }
 
 function clearData() {
-    let obj = document.getElementById('objects');
-    let hid = document.getElementById('hiddenData');
+    var obj = document.getElementById('objects');
+    var hid = document.getElementById('hiddenData');
     obj.innerHTML = "";
     hid.innerHTML = "";
 }
-

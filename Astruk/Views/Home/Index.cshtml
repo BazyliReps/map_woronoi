@@ -1,50 +1,7 @@
 ﻿
 <div class="row">
-
-
-
-    <div class="col-md-8">
-        <!--<h2>Mapa</h2>-->
-
-        <p>
-            <div id="imageDiv"></div>
-            <div id="imgSrc" style="display:none"></div>
-            <script>
-                var canvas = document.createElement("canvas");
-                canvas.setAttribute("width", 3000);
-                canvas.setAttribute("height", 3000);
-                canvas.setAttribute("style", "position: absolute, x:0; y:0;");
-                let imageDiv = document.getElementById("imageDiv");
-                imageDiv.appendChild(canvas);
-            </script>
-
-            <script>
-                function handler(e) {
-                    e = e || window.event;
-
-                    let img = document.getElementById("imageDiv");
-                    var rect = img.getBoundingClientRect();
-
-                    var pageX = e.clientX - rect.left;
-                    var pageY = e.clientY - rect.top;
-
-                    // IE 8
-                    if (pageX === undefined) {
-                        pageX = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-                        pageY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
-                    }
-
-                    let mouse = document.getElementById("mouse");
-                    mouse.innerHTML = "X: " + pageX + " Y: " + (pageY);
-                }
-
-                // attach handler to the click event of the document
-                if (document.attachEvent) document.attachEvent('onclick', handler);
-                else document.addEventListener('click', handler);
-            </script>
-
-
-        </p>
+    <div id="map" class="col-md-8">
+        <h2>Load map -></h2>
     </div>
     <div class="col-md-4">
         <h2>Formularz</h2>

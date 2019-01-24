@@ -1,8 +1,10 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Web.Mvc;
 using Astruk.Common.Interfaces;
 using Astruk.Common.Models;
+using Astruk.ViewModels;
 using System;
 using Input = Astruk.ViewModels.Input;
 
@@ -25,7 +27,7 @@ namespace Astruk.Controllers
 		}
 
 		[HttpPost]
-		public /*PartialViewResult*/ JsonResult LoadMap(IList<Input.VertexVm> Vertices,
+		public PartialViewResult _LoadMap(IList<Input.VertexVm> Vertices,
 			IEnumerable<Input.KeyMapObjectVm> KeyObjects, IEnumerable<Input.MapObjectTypeVm> Types,
 			IEnumerable<Input.MapObjectVm> Objects)
 		{
@@ -86,10 +88,31 @@ namespace Astruk.Controllers
 				}
 			}
 
-			var testMap = MapService.GenerateMap(vertices, keyObjects, (IEnumerable<MapObjectType>) types, objects);
+			var map = MapService.GenerateMap(vertices, keyObjects, (IEnumerable<MapObjectType>) types, objects);
 
+			var model = new MapVm
+			{
+				Vertices = map.Vertices.Select(VertexToPointF)
+					.ToList(), // Select in LINQ to Objects preserves order. Return of IEnumerable is because of other LINQs
+				Regions = map.Regions.Select(x => new RegionVm
+				{
+					Vertices = x.Vertices.Select(VertexToPointF).ToList(),
+					KeyObject = new KeyMapObjectVm
+						{Name = x.KeyObject.Name, Position = new PointF((float) x.KeyObject.X, (float) x.KeyObject.Y)},
+					Objects = x.Objects.Select(o => new MapObjectVm
+					{
+						Type = o.Type.Name,
+						Parameters = o.Parameters
+					})
+				})
+			};
 
-			return Json(testMap);
+			return PartialView(model);
+		}
+
+		private PointF VertexToPointF(Vertex vertex)
+		{
+			return new PointF((float) vertex.X, (float) vertex.Y);
 		}
 	}
 }
