@@ -26,7 +26,12 @@ function sendAllData(allData) {
     const dataHtml = document.getElementById("hiddenData");
     dataHtml.innerHTML = JSON.stringify(allData);
 
-    $("#map").load(url, allData);
+
+    $("#map").load(url, allData, function(response, status) {
+        if (status === "error") {
+            $("#map").html(response);
+        };
+    });
 }
 
 function addVertex() {

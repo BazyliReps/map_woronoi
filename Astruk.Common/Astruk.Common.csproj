@@ -43,7 +43,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\ValidationException.cs" />
     <Compile Include="Interfaces\IMapService.cs" />
+    <Compile Include="Interfaces\IValidationRule.cs" />
+    <Compile Include="Interfaces\IValidationRuleWithParameters.cs" />
     <Compile Include="Models\Vector.cs" />
     <Compile Include="Models\Region.cs" />
     <Compile Include="Models\Map.cs" />
@@ -52,6 +55,8 @@
     <Compile Include="Models\MapObjectType.cs" />
     <Compile Include="Models\Vertex.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\ValidationResult.cs" />
+    <Compile Include="Utility\ValidatorOf.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
