@@ -11,12 +11,12 @@
             <section class="container" style="padding: 30px">
                 <form>
                     <h3>Dodawanie punktu do konturów</h3>
-                    <input type="text" name="vertexX" id="vertexX"/>
+                    <input type="text" name="vertexX" id="vertexX" />
                     <label for="vertexX">pozycja X</label>
-                    <br/>
-                    <input type="text" name="vertexY" id="vertexY"/>
+                    <br />
+                    <input type="text" name="vertexY" id="vertexY" />
                     <label for="vertexY">pozycja Y</label>
-                    <br/>
+                    <br />
                 </form>
                 <button id="submitPoint" onclick="addVertex()">dodaj punkt do konturów</button>
             </section>
@@ -25,15 +25,15 @@
             <section class="container" style="padding: 30px">
                 <form>
                     <h3>Dodawanie punktu kluczowego</h3>
-                    <input type="text" name="keyX" id="keyX"/>
+                    <input type="text" name="keyX" id="keyX" />
                     <label for="keyX">pozycja X</label>
-                    <br/>
-                    <input type="text" name="keyY" id="keyY"/>
+                    <br />
+                    <input type="text" name="keyY" id="keyY" />
                     <label for="keyY">pozycja Y</label>
-                    <br/>
-                    <input type="text" name="keyName" id="keyName"/>
+                    <br />
+                    <input type="text" name="keyName" id="keyName" />
                     <label for="keyName">nazwa punktu</label>
-                    <br/>
+                    <br />
                 </form>
                 <button id="submitKeyPoint" onclick="addKeyPoint()">dodaj punkt specjalny</button>
             </section>
@@ -44,7 +44,7 @@
             <section style="padding: 30px">
                 <h3> Wczytaj plik z danymi:</h3>
                 <form>
-                    <input type="file" id="textFile" accept=".txt" name="textFile" onchange="readFile(event)"/>
+                    <input type="file" id="textFile" accept=".txt" name="textFile" onchange="readFile(event)" />
                 </form>
             </section>
 
@@ -52,17 +52,39 @@
             <section style="padding: 30px">
                 <h3> Wczytaj grafikę:</h3>
                 <form>
-                    <input type="file" id="imageUpload" accept=".gif,.jpg,.jpeg,.png" onchange="readImage(event)"/>
+                    <input type="file" id="imageUpload" accept=".gif,.jpg,.jpeg,.png" onchange="readImage(event)" />
                 </form>
             </section>
 
-            <!--TEST JSONA-->
+            <!--LISTA OBIEKTOW-->
+            <div id="keyObjects" style="margin-top: 30px">
+                <nav class="navbar navbar-light bg-dark">
+                    <h3 class="text-light">
+                        lista obiektów kluczowych
+                    </h3>
+                    <button id="hideKeyObjectsButton" onclick="hide('keyObjectsList')">ukryj/pokaż</button>
+
+                </nav>
+                <div id="keyObjectsList" style="display:block">
+                </div>
+            </div>
+
+            <!--LISTA KONTUROW-->
+            <div id="vertices" style="margin-top: 30px">
+                <nav class="navbar navbar-light bg-dark">
+                    <h3 class="text-light">lista konturów</h3>
+                    <button id="hideVerticesButton" onclick="hide('verticesList')">ukryj/pokaż</button>
+                </nav>
+                <div id="verticesList" style="display:block">
+                </div>
+            </div>
+
+
+            <!--TESKT JSONA-->
             <section class="container">
                 <div id="hiddenData" style="display: none"></div>
             </section>
 
-            <!--TEST CZYTANIA JSONA-->
-            <div id="jsonread"></div>
         </div>
     </div>
 </div>

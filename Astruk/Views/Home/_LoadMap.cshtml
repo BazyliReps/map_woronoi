@@ -2,10 +2,13 @@
 @model Astruk.ViewModels.MapVm
 @Scripts.Render("~/bundles/raphael")
 
+
 <div id="raphael-map"></div>
 
 <style>
-    path { outline: none; }
+    path {
+        outline: none;
+    }
 </style>
 
 <script>
@@ -29,6 +32,7 @@
         @(Model.Vertices.Min(x => x.Y) - 2),
         @Model.Vertices.Max(x => x.X),
         @Model.Vertices.Max(x => x.Y));
+
 
     var regions = {};
 
