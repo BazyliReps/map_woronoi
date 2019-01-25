@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Astruk.Common.Interfaces;
 using Astruk.Common.Models;
+using Astruk.Common.Utility;
 using Astruk.Services.Helpers;
 using Astruk.Services.Models;
+using Astruk.Services.Validation;
 
 namespace Astruk.Services
 {
@@ -13,6 +16,34 @@ namespace Astruk.Services
 		public Map GenerateMap(IList<Vertex> vertices, IEnumerable<KeyMapObject> keyObjects,
 			IEnumerable<MapObjectType> types, IEnumerable<MapObject> objects)
 		{
+			var verticesValidationResult = ValidatorOf<IList<Vertex>>
+				.Validate()
+				//.WithRule<EdgesDoNotIntersect>() // LAST MINUTE ERROR DETECTED IN THIS RULE
+				.WithRule<MustBeShape>()
+				.ForObject(vertices);
+			if (!verticesValidationResult.IsValid)
+			{
+				verticesValidationResult.ThrowDefaultException();
+			}
+
+			var keyObjectsValidationResult = ValidatorOf<IEnumerable<KeyMapObject>>
+				.Validate()
+				.WithRule<MustBeTriangulable>()
+				.ForObject(keyObjects);
+			if (!keyObjectsValidationResult.IsValid)
+			{
+				keyObjectsValidationResult.ThrowDefaultException();
+			}
+
+			var objectsValidationResult = ValidatorOf<IEnumerable<MapObject>>
+				.Validate()
+				.WithRule<TypesExist>().WithParam(types)
+				.ForObject(objects);
+			if (!objectsValidationResult.IsValid)
+			{
+				objectsValidationResult.ThrowDefaultException();
+			}
+
 			SetBordersClockwise(ref vertices);
 			var triangulationMaker = new Triangulator();
 			var mapConstraints = new CoordsConstraints(vertices);

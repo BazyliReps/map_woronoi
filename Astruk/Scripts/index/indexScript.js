@@ -13,7 +13,11 @@ function sendAllData(allData) {
     const jsonDiv = document.getElementById("hiddenData");
     jsonDiv.insertAdjacentHTML("beforeend", jsonData);
 
-    $("#map").load(url, allData);
+    $("#map").load(url, allData, function(response, status) {
+        if (status === "error") {
+            $("#map").html(response);
+        };
+    });
 }
 
 function addVertex() {
